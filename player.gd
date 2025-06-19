@@ -8,8 +8,11 @@ extends CharacterBody2D
 ## Descent acceleration in px/s. Ignored if use auto descent acceleration is
 ## true.
 @export var descent_acceleration: float = 0.0
+## A scene that represents the current projectile
+@export var projectile_scene: PackedScene = preload("res://projectile.tscn")
 
 enum FlyingState { IDLE, CLIMBING, DESCENDING }
+enum ShootingDirection { UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN }
 
 var screen_size: Vector2
 var current_flying_state = FlyingState.IDLE
@@ -27,6 +30,17 @@ func get_input() -> void:
 		current_flying_state = FlyingState.CLIMBING
 	elif Input.is_action_pressed("ui_descend"):
 		current_flying_state = FlyingState.DESCENDING
+
+	if Input.is_action_just_pressed("ui_shoot_up"):
+		shoot(ShootingDirection.UP)
+	elif Input.is_action_just_pressed("ui_shoot_up_right"):
+		shoot(ShootingDirection.UP_RIGHT)
+	elif Input.is_action_just_pressed("ui_shoot_right"):
+		shoot(ShootingDirection.RIGHT)
+	elif Input.is_action_just_pressed("ui_shoot_down_right"):
+		shoot(ShootingDirection.DOWN_RIGHT)
+	elif Input.is_action_just_pressed("ui_shoot_down"):
+		shoot(ShootingDirection.DOWN)
 
 
 func _physics_process(delta: float) -> void:
@@ -56,3 +70,28 @@ func _physics_process(delta: float) -> void:
 
 	move_and_collide(velocity * delta)
 	
+
+func shoot(shooting_direction: ShootingDirection) -> void:
+	var projectile: Projectile = projectile_scene.instantiate()
+	var projectile_position: Vector2 = Vector2.ZERO
+	var projectile_direction: Vector2 = Vector2.ZERO
+
+	match shooting_direction:
+		ShootingDirection.UP:
+			projectile_position = $MuzzleUp.global_position
+			projectile_direction = Vector2.UP
+		ShootingDirection.UP_RIGHT:
+			projectile_position = $MuzzleUpRight.global_position
+			projectile_direction = (Vector2.UP + Vector2.RIGHT).normalized()
+		ShootingDirection.RIGHT:
+			projectile_position = $MuzzleRight.global_position
+			projectile_direction = Vector2.RIGHT
+		ShootingDirection.DOWN_RIGHT:
+			projectile_position = $MuzzleDownRight.global_position
+			projectile_direction = (Vector2.DOWN + Vector2.RIGHT).normalized()
+		ShootingDirection.DOWN:
+			projectile_position = $MuzzleDown.global_position
+			projectile_direction = Vector2.DOWN
+
+	projectile.fire(projectile_position, projectile_direction)
+	owner.add_child(projectile)
