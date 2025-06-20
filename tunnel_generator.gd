@@ -5,33 +5,34 @@ extends Node
 var visible_rect: Rect2 = Rect2()
 var tile_width: float = 50.0
 var tunnel_height: float = 600.0
+var tunnel_y_origin: float = 540.0
 var amplitude: float = 100.0
 var period: float = 1920.0
+var current_x: float = 0.0;
 
 
 func _ready() -> void:
-	visible_rect = get_viewport().get_visible_rect()
-	generate_tunnel()
+	pass
 
 
-func generate_tunnel():
-	var center: Vector2 = visible_rect.get_center()
-	var tile_count: int = int(visible_rect.size.x / tile_width) + 1
-	var x: float = 0.0
+func generate_tunnel(rect: Rect2 ,y_origin: float):
+	if rect.end.x + tile_width < current_x: return 
+
+	var tile_count: int = int((rect.end.x + tile_width - current_x) / tile_width) + 1
 	for i in range(tile_count):
 		# Bottom tile
 		var bottom_tile: Tile = tile_scene.instantiate()
-		bottom_tile.size = Vector2(tile_width, visible_rect.size.y)
-		bottom_tile.position = Vector2(x, center.y + get_y_offset(x) + (tunnel_height + bottom_tile.size.y) * 0.5);
+		bottom_tile.size = Vector2(tile_width, rect.size.y)
+		bottom_tile.position = Vector2(current_x, y_origin + get_y_offset(current_x) + (tunnel_height + bottom_tile.size.y) * 0.5);
 		owner.add_child.call_deferred(bottom_tile)
 
 		# Top tile
 		var top_tile: Tile = tile_scene.instantiate()
-		top_tile.size = Vector2(tile_width, visible_rect.size.y)
-		top_tile.position = Vector2(x, center.y + get_y_offset(x) - (tunnel_height + top_tile.size.y) * 0.5)
+		top_tile.size = Vector2(tile_width, rect.size.y)
+		top_tile.position = Vector2(current_x, y_origin + get_y_offset(current_x) - (tunnel_height + top_tile.size.y) * 0.5)
 		owner.add_child.call_deferred(top_tile)
 
-		x += tile_width
+		current_x += tile_width
 
 
 func get_y_offset(x: float) -> float:

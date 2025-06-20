@@ -9,6 +9,7 @@ extends CharacterBody2D
 ## true.
 @export var descent_acceleration: float = 0.0
 ## A scene that represents the current projectile
+@export var speed: float = 200.0
 @export var projectile_scene: PackedScene = preload("res://projectile.tscn")
 
 enum FlyingState { IDLE, CLIMBING, DESCENDING }
@@ -59,7 +60,7 @@ func _physics_process(delta: float) -> void:
 		FlyingState.IDLE:
 			velocity.y += gravity.y * delta
 
-	velocity.x = 0
+	velocity.x = speed
 
 	# Bounce off top and bottom of screen
 	var viewport_size = get_viewport_rect().size
