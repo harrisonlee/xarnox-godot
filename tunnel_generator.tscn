@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dencfc13x3u82"]
+
+[ext_resource type="Script" uid="uid://df4rlco0dlry6" path="res://tunnel_generator.gd" id="1_jrm4c"]
+
+[node name="TunnelGenerator" type="Node"]
+script = ExtResource("1_jrm4c")
