@@ -12,6 +12,14 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	position = player.position;
 	position.x += current_viewport_rect.size.x * 0.5 - player_follow_x
+
+
+func get_visible_rect() -> Rect2:
+	var center: Vector2 = current_viewport_rect.get_center()
+	return Rect2(
+		Vector2(position.x - center.x, position.y - center.y),
+		current_viewport_rect.size
+	)

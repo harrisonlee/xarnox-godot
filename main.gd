@@ -13,11 +13,5 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	var viewport_center = current_viewport_rect.get_center();
-	var camera_viewport: Rect2 = Rect2(
-		Vector2($PlayerCamera.position.x - viewport_center.x, $PlayerCamera.position.y - viewport_center.y),
-		current_viewport_rect.size
-	)
-
-	$TunnelGenerator.generate_tunnel(camera_viewport, tunnel_y_origin)
+func _process(_delta: float) -> void:
+	$TunnelGenerator.generate_tunnel($PlayerCamera.get_visible_rect(), tunnel_y_origin)
