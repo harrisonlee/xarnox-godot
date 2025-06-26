@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+signal hit
+
 ## Climbing acceleration in px/s.
 @export var climb_acceleration: float = 3000.0
 ## Use descent acceleration as function of climb accel minus gravity. Note,
@@ -8,6 +10,12 @@ extends CharacterBody2D
 ## Descent acceleration in px/s. Ignored if use auto descent acceleration is
 ## true.
 @export var descent_acceleration: float = 0.0
+## Speed for map traversal in px/s.
+@export var speed: float = 200.0
+## Acceleration to reach speed in px/s.
+@export var acceleration: float = 10.0
+## Velocity to bounce off walls.
+@export var bounce_velocity: float = 400.0
 ## A scene that represents the current projectile
 @export var projectile_scene: PackedScene = preload("res://projectile.tscn")
 
@@ -59,7 +67,7 @@ func _physics_process(delta: float) -> void:
 		FlyingState.IDLE:
 			velocity.y += gravity.y * delta
 
-	velocity.x = 0
+	velocity.x = clampf(velocity.x + acceleration, -speed, speed)
 
 	# Bounce off top and bottom of screen
 	var viewport_size = get_viewport_rect().size
@@ -68,9 +76,14 @@ func _physics_process(delta: float) -> void:
 	elif position.y + 50 >= viewport_size.y:
 		velocity.y = -200
 
-	move_and_collide(velocity * delta)
+	# Bounce off walls
+	var collision = move_and_collide(velocity * delta)
+	if collision:
+		hit.emit()
+		if collision.get_collider().is_in_group("walls"):
+			velocity = collision.get_normal() * 400.0
+			
 	
-
 func shoot(shooting_direction: ShootingDirection) -> void:
 	var projectile: Projectile = projectile_scene.instantiate()
 	var projectile_position: Vector2 = Vector2.ZERO
