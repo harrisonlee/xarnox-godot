@@ -17,3 +17,5 @@ position = Vector2(250, 540)
 
 [node name="PlayerCamera" parent="." node_paths=PackedStringArray("player") instance=ExtResource("4_1bvp3")]
 player = NodePath("../Player")
+
+[connection signal="hit" from="Player" to="." method="_on_player_hit"]

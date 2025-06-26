@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+signal hit
+
 ## Climbing acceleration in px/s.
 @export var climb_acceleration: float = 3000.0
 ## Use descent acceleration as function of climb accel minus gravity. Note,
@@ -77,6 +79,7 @@ func _physics_process(delta: float) -> void:
 	# Bounce off walls
 	var collision = move_and_collide(velocity * delta)
 	if collision:
+		hit.emit()
 		if collision.get_collider().is_in_group("walls"):
 			velocity = collision.get_normal() * 400.0
 			

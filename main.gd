@@ -15,3 +15,7 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
 	$TunnelGenerator.generate_tunnel($PlayerCamera.get_visible_rect(), tunnel_y_origin)
+
+
+func _on_player_hit() -> void:
+	$PlayerCamera.shake()
