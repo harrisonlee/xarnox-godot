@@ -22,9 +22,15 @@ signal hit
 enum FlyingState { IDLE, CLIMBING, DESCENDING }
 enum ShootingDirection { UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN }
 
+@onready var collision_body: CollisionShape2D = $CollisionShape2D
+@onready var muzzle_up: Marker2D = $MuzzleUp
+@onready var muzzle_up_right: Marker2D = $MuzzleUpRight
+@onready var muzzle_right: Marker2D = $MuzzleRight
+@onready var muzzle_down_right: Marker2D = $MuzzleDownRight
+@onready var muzzle_down: Marker2D = $MuzzleDown
+
 var screen_size: Vector2
 var current_flying_state = FlyingState.IDLE
-@onready var collision_body: CollisionShape2D = $CollisionShape2D
 
 
 func _draw() -> void:
@@ -91,19 +97,19 @@ func shoot(shooting_direction: ShootingDirection) -> void:
 
 	match shooting_direction:
 		ShootingDirection.UP:
-			projectile_position = $MuzzleUp.global_position
+			projectile_position = muzzle_up.global_position
 			projectile_direction = Vector2.UP
 		ShootingDirection.UP_RIGHT:
-			projectile_position = $MuzzleUpRight.global_position
+			projectile_position = muzzle_up_right.global_position
 			projectile_direction = (Vector2.UP + Vector2.RIGHT).normalized()
 		ShootingDirection.RIGHT:
-			projectile_position = $MuzzleRight.global_position
+			projectile_position = muzzle_right.global_position
 			projectile_direction = Vector2.RIGHT
 		ShootingDirection.DOWN_RIGHT:
-			projectile_position = $MuzzleDownRight.global_position
+			projectile_position = muzzle_down_right.global_position
 			projectile_direction = (Vector2.DOWN + Vector2.RIGHT).normalized()
 		ShootingDirection.DOWN:
-			projectile_position = $MuzzleDown.global_position
+			projectile_position = muzzle_down.global_position
 			projectile_direction = Vector2.DOWN
 
 	projectile.fire(projectile_position, projectile_direction)
