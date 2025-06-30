@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://0u6fmju7cdqb"]
+[gd_scene load_steps=6 format=3 uid="uid://0u6fmju7cdqb"]
 
 [ext_resource type="Script" uid="uid://m7lv6p2uy0y" path="res://main.gd" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://dencfc13x3u82" path="res://tunnel_generator.tscn" id="2_1bvp3"]
 [ext_resource type="PackedScene" uid="uid://tusuer5i4roh" path="res://player.tscn" id="2_h2yge"]
 [ext_resource type="PackedScene" uid="uid://bld7wxadxirfb" path="res://player_camera.tscn" id="4_1bvp3"]
+[ext_resource type="PackedScene" uid="uid://cgvkfmwt00dva" path="res://hud.tscn" id="5_lquwl"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_0xm2m")
@@ -17,5 +18,7 @@ position = Vector2(250, 540)
 
 [node name="PlayerCamera" parent="." node_paths=PackedStringArray("player") instance=ExtResource("4_1bvp3")]
 player = NodePath("../Player")
+
+[node name="HUD" parent="." instance=ExtResource("5_lquwl")]
 
 [connection signal="hit" from="Player" to="." method="_on_player_hit"]
