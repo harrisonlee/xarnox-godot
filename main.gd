@@ -12,6 +12,8 @@ var tunnel_y_origin: float = 0.0
 func _ready() -> void:
 	player.position = $PlayerStartingPosition.position
 	player_camera.player_follow_x = $PlayerStartingPosition.position.x
+	player_camera.move_to_player()
+
 	current_viewport_rect = get_viewport().get_visible_rect()
 	tunnel_y_origin = current_viewport_rect.get_center().y
 	tunnel_generator.generate_tunnel(current_viewport_rect, tunnel_y_origin)
