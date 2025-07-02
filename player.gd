@@ -75,13 +75,6 @@ func _physics_process(delta: float) -> void:
 
 	velocity.x = clampf(velocity.x + acceleration, -speed, speed)
 
-	# Bounce off top and bottom of screen
-	var viewport_size = get_viewport_rect().size
-	if position.y - 50 <= 0:
-		velocity.y = 200
-	elif position.y + 50 >= viewport_size.y:
-		velocity.y = -200
-
 	# Bounce off walls
 	var collision = move_and_collide(velocity * delta)
 	if collision:
