@@ -1,7 +1,14 @@
 extends CharacterBody2D
 
+#-------------------------------------------------------------------------------
+# Signals
+#-------------------------------------------------------------------------------
 signal hit
 
+
+#-------------------------------------------------------------------------------
+# Exported Variables
+#-------------------------------------------------------------------------------
 ## Climbing acceleration in px/s.
 @export var climb_acceleration: float = 3000.0
 ## Use descent acceleration as function of climb accel minus gravity. Note,
@@ -19,9 +26,17 @@ signal hit
 ## A scene that represents the current projectile
 @export var projectile_scene: PackedScene = preload("res://projectile.tscn")
 
+
+#-------------------------------------------------------------------------------
+# Enums
+#-------------------------------------------------------------------------------
 enum FlyingState { IDLE, CLIMBING, DESCENDING }
 enum ShootingDirection { UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN }
 
+
+#-------------------------------------------------------------------------------
+# Exported Variables
+#-------------------------------------------------------------------------------
 @onready var collision_body: CollisionShape2D = $CollisionShape2D
 @onready var muzzle_up: Marker2D = $MuzzleUp
 @onready var muzzle_up_right: Marker2D = $MuzzleUpRight
@@ -29,43 +44,29 @@ enum ShootingDirection { UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN }
 @onready var muzzle_down_right: Marker2D = $MuzzleDownRight
 @onready var muzzle_down: Marker2D = $MuzzleDown
 
-var screen_size: Vector2
-var current_flying_state = FlyingState.IDLE
+
+#-------------------------------------------------------------------------------
+# Exported Variables
+#-------------------------------------------------------------------------------
+var _current_flying_state = FlyingState.IDLE
 
 
+#-------------------------------------------------------------------------------
+# Lifecycle Methods
+#-------------------------------------------------------------------------------
 func _draw() -> void:
 	draw_circle(Vector2.ZERO, 50.0, Color.RED)
-	screen_size = get_viewport_rect().size
-
-
-func get_input() -> void:
-	current_flying_state = FlyingState.IDLE
-	if Input.is_action_pressed("ui_climb"):
-		current_flying_state = FlyingState.CLIMBING
-	elif Input.is_action_pressed("ui_descend"):
-		current_flying_state = FlyingState.DESCENDING
-
-	if Input.is_action_just_pressed("ui_shoot_up"):
-		shoot(ShootingDirection.UP)
-	elif Input.is_action_just_pressed("ui_shoot_up_right"):
-		shoot(ShootingDirection.UP_RIGHT)
-	elif Input.is_action_just_pressed("ui_shoot_right"):
-		shoot(ShootingDirection.RIGHT)
-	elif Input.is_action_just_pressed("ui_shoot_down_right"):
-		shoot(ShootingDirection.DOWN_RIGHT)
-	elif Input.is_action_just_pressed("ui_shoot_down"):
-		shoot(ShootingDirection.DOWN)
 
 
 func _physics_process(delta: float) -> void:
-	get_input();
+	get_input()
 
-	var gravity = get_gravity();
+	var gravity = get_gravity()
 	var descent_accel = descent_acceleration
 	if use_auto_descent_acceleration:
 		descent_accel = climb_acceleration - gravity.y
 
-	match current_flying_state:
+	match _current_flying_state:
 		FlyingState.CLIMBING:
 			velocity.y += -climb_acceleration * delta
 		FlyingState.DESCENDING:
@@ -82,8 +83,30 @@ func _physics_process(delta: float) -> void:
 		if collision.get_collider().is_in_group("walls"):
 			velocity = collision.get_normal() * 400.0
 			
+
+func get_input() -> void:
+	_current_flying_state = FlyingState.IDLE
+	if Input.is_action_pressed("ui_climb"):
+		_current_flying_state = FlyingState.CLIMBING
+	elif Input.is_action_pressed("ui_descend"):
+		_current_flying_state = FlyingState.DESCENDING
+
+	if Input.is_action_just_pressed("ui_shoot_up"):
+		_shoot(ShootingDirection.UP)
+	elif Input.is_action_just_pressed("ui_shoot_up_right"):
+		_shoot(ShootingDirection.UP_RIGHT)
+	elif Input.is_action_just_pressed("ui_shoot_right"):
+		_shoot(ShootingDirection.RIGHT)
+	elif Input.is_action_just_pressed("ui_shoot_down_right"):
+		_shoot(ShootingDirection.DOWN_RIGHT)
+	elif Input.is_action_just_pressed("ui_shoot_down"):
+		_shoot(ShootingDirection.DOWN)
 	
-func shoot(shooting_direction: ShootingDirection) -> void:
+
+#-------------------------------------------------------------------------------
+# Private Methods
+#-------------------------------------------------------------------------------
+func _shoot(shooting_direction: ShootingDirection) -> void:
 	var projectile: Projectile = projectile_scene.instantiate()
 	var projectile_position: Vector2 = Vector2.ZERO
 	var projectile_direction: Vector2 = Vector2.ZERO

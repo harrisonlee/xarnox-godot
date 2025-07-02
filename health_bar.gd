@@ -1,18 +1,37 @@
 extends ProgressBar
 
+#-------------------------------------------------------------------------------
+# Constants
+#-------------------------------------------------------------------------------
 const TRANSITION_SPEED: float = 100.0
 const COLOR_HEALTHY: Color = Color.GREEN
 const COLOR_SLIGHTLY_DAMAGED: Color = Color.YELLOW
 const COLOR_HEAVILY_DAMAGED: Color = Color.ORANGE
 const COLOR_NEAR_DEATH: Color = Color.RED
 
+
+#-------------------------------------------------------------------------------
+# On-ready Nodes
+#-------------------------------------------------------------------------------
 @onready var damage_bar = $DamageBar
 @onready var timer = $Timer
 
+
+#-------------------------------------------------------------------------------
+# Public Variables
+#-------------------------------------------------------------------------------
 var health: float = 0.0 : set = _set_health
-var is_transitioning: bool = false
 
 
+#-------------------------------------------------------------------------------
+# Private Variables
+#-------------------------------------------------------------------------------
+var _is_transitioning: bool = false
+
+
+#-------------------------------------------------------------------------------
+# Constants
+#-------------------------------------------------------------------------------
 func init_health(_health: float):
 	health = _health
 	value = health
@@ -22,11 +41,14 @@ func init_health(_health: float):
 	_update_bar_color()
 
 
+#-------------------------------------------------------------------------------
+# Private Methods
+#-------------------------------------------------------------------------------
 func _set_health(new_health) -> void:
 	var previous_health = health
 	health = minf(max_value, new_health)
 	value = health
-	is_transitioning = false
+	_is_transitioning = false
 	_update_bar_color()
 
 	if health < previous_health:
@@ -46,14 +68,20 @@ func _update_bar_color() -> void:
 	get("theme_override_styles/fill").bg_color = color
 
 
+#-------------------------------------------------------------------------------
+# Lifecyle Methods
+#-------------------------------------------------------------------------------
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	if !is_transitioning: return
+	if !_is_transitioning: return
 	damage_bar.value = maxf(damage_bar.value - TRANSITION_SPEED * delta, health)
 
 	if damage_bar.value == health:
-		is_transitioning = false
+		_is_transitioning = false
 
 
+#-------------------------------------------------------------------------------
+# Signal Callbacks
+#-------------------------------------------------------------------------------
 func _on_timer_timeout() -> void:
-	is_transitioning = true
+	_is_transitioning = true
