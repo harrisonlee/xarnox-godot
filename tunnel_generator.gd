@@ -3,7 +3,16 @@ extends Node
 #-------------------------------------------------------------------------------
 # Exported Variables
 #-------------------------------------------------------------------------------
+## The tile node to generate
 @export var tile_scene: PackedScene = preload("res://tile.tscn")
+## The minimum period. Period will be randomly generated from min/max.
+@export var period_min: float = 960.0
+## The maxium period. Period will be randomly generated from min/max.
+@export var period_max: float = 3840.0
+## The minimum amplitude. Amplitude will be randomly generated from min/max.
+@export var amplitude_min: float = 100.0
+## The maximum amplitude. Amplitude will be randomly generated from min/max.
+@export var amplitude_max: float = 300.0
 
 
 #-------------------------------------------------------------------------------
@@ -11,8 +20,6 @@ extends Node
 #-------------------------------------------------------------------------------
 var tile_width: float = 50.0
 var tunnel_height: float = 600.0
-var amplitude: float = 100.0
-var period: float = 1920.0
 
 
 #-------------------------------------------------------------------------------
@@ -28,27 +35,25 @@ var _current_x: float = 0.0
 var _last_transition_change_x: float = 0.0
 var _transition_period: float = 0.0
 var _generator_idx: int = 0
+var _current_period: float = 0.0
 var _current_amplitude: float = 0.0
-var _state: State = State.NORMAL:
-	set(value):
-		_state = value
-		_update_transition_period()
-
-
-#-------------------------------------------------------------------------------
-# Lifecycle Methods
-#-------------------------------------------------------------------------------
-func _ready() -> void:
-	_transition_period = period
+var _target_amplitude: float = 0.0
+var _state: State = State.NORMAL
 
 
 #-------------------------------------------------------------------------------
 # Public Methods
 #-------------------------------------------------------------------------------
+func init(rect: Rect2) -> void:
+	_current_period = rect.size.x
+	_transition_period = _current_period
+	_target_amplitude = 100.0
+
+
 func generate_tunnel(rect: Rect2, y_origin: float):
 	if rect.end.x + tile_width < _current_x: return 
 
-	_current_amplitude = amplitude
+	_current_amplitude = _target_amplitude
 	var tile_coverage: int = int(rect.end.x + tile_width - _current_x)
 	var tile_count: int = int(tile_coverage / tile_width) + 1
 
@@ -63,7 +68,7 @@ func generate_tunnel(rect: Rect2, y_origin: float):
 				generator_y_offset = _get_y_offset(_current_x)
 			State.TRANSITIONING_IN:
 				var ratio = _last_transition_change_x / _transition_period
-				_current_amplitude = lerpf(0.0, amplitude, ratio)
+				_current_amplitude = lerpf(0.0, _target_amplitude, ratio)
 				generator_y_offset = _get_y_offset(_current_x)
 				
 		var tunnel_y_offset: float = y_origin + generator_y_offset
@@ -92,10 +97,12 @@ func generate_tunnel(rect: Rect2, y_origin: float):
 			State.NORMAL:
 				_state = State.TRANSITIONING_OUT
 				_last_transition_change_x = 0.0
+				_transition_period = _current_period * 0.5
 
 				# debug
 				bottom_tile.color = Color.GREEN
 				top_tile.color = Color.GREEN
+
 
 			State.TRANSITIONING_OUT:
 				_state = State.TRANSITIONING_IN
@@ -105,6 +112,10 @@ func generate_tunnel(rect: Rect2, y_origin: float):
 				if _generator_idx > 2:
 					_generator_idx = 0
 
+				_current_period = range(period_min, period_max).pick_random()
+				_target_amplitude = range(amplitude_min, amplitude_max).pick_random()
+				_transition_period = _current_period * 0.5
+
 				# debug
 				bottom_tile.color = Color.BLUE
 				top_tile.color = Color.BLUE
@@ -112,6 +123,7 @@ func generate_tunnel(rect: Rect2, y_origin: float):
 			State.TRANSITIONING_IN:
 				_state = State.NORMAL
 				_last_transition_change_x = 0.0
+				_transition_period = _current_period * [0.5, 1.0, 1.5].pick_random()
 
 				# debug
 				bottom_tile.color = Color.RED
@@ -122,7 +134,7 @@ func generate_tunnel(rect: Rect2, y_origin: float):
 # Private Methods
 #-------------------------------------------------------------------------------
 func _get_y_offset(x: float) -> float:
-	var p: float = 2.0 * PI / period
+	var p: float = 2.0 * PI / _current_period
 	match _generator_idx:
 		0: return _current_amplitude * (sin(x * p) + sin(2 * x * p))
 		1: return _current_amplitude * sin(sin(2 * x * p) + sin(4 * x * p))
@@ -131,4 +143,5 @@ func _get_y_offset(x: float) -> float:
 
 func _update_transition_period() -> void:
 	var multipliers: Array[float] = [0.5, 1.0 , 1.5, 2.0, 2.5, 3.0]
-	_transition_period = period * multipliers.pick_random()
+	_transition_period = _current_period * multipliers.pick_random()
+	
