@@ -4,6 +4,7 @@ extends CanvasLayer
 # On-ready Nodes
 #-------------------------------------------------------------------------------
 @onready var player_health_bar = $PlayerHealthBar
+@onready var distance_label = $DistanceLabel
 
 
 #-------------------------------------------------------------------------------
@@ -24,4 +25,8 @@ func set_player_health(health: float) -> void:
 func adjust_player_health(amount: float) -> void:
 	var current_health = player_health_bar.health
 	player_health_bar.health = current_health + amount
+
+
+func set_player_distance(distance: float) -> void:
+	distance_label.text = "DISTANCE: " + str(int(distance)) + "M"
 

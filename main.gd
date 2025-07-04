@@ -14,6 +14,7 @@ extends Node
 #-------------------------------------------------------------------------------
 var _current_viewport_rect: Rect2 = Rect2()
 var _tunnel_y_origin: float = 0.0
+var _player_distance_scale: float = 0.1
 
 
 #-------------------------------------------------------------------------------
@@ -34,6 +35,7 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
+	hud.set_player_distance(player.position.x * _player_distance_scale)
 	tunnel_generator.generate_tunnel(
 		player_camera.get_visible_rect(),
 		_tunnel_y_origin
