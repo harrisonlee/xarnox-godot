@@ -51,7 +51,7 @@ var _generator_idx: int = 0
 var _current_period: float = 0.0
 var _current_amplitude: float = 0.0
 var _target_amplitude: float = 0.0
-var _state: State = State.NORMAL
+var _state: State = State.TRANSITIONING_IN
 var _tile_pairs: Array[TilePair] = []
 
 
