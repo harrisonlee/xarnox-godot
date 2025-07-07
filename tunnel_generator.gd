@@ -35,8 +35,11 @@ class TilePair:
 	var position_x: float
 	var top_tile: Tile
 	var bottom_tile: Tile
+	var _did_free: bool = false
 
 	func free_tiles() -> void:
+		if _did_free: return
+		_did_free = true
 		top_tile.queue_free()
 		bottom_tile.queue_free()
 
@@ -87,7 +90,6 @@ func generate_tunnel(rect: Rect2, origin_y: float):
 				_current_amplitude = lerpf(0.0, _target_amplitude, ratio)
 				generator_offset_y = _get_offset_y(_current_x)
 		
-
 		var tunnel_offset_y: float = origin_y + generator_offset_y
 		var tile_offset_y: float = (tunnel_height + rect.size.y) * 0.5
 
