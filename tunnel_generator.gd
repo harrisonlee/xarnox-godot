@@ -53,6 +53,7 @@ var _current_amplitude: float = 0.0
 var _target_amplitude: float = 0.0
 var _state: State = State.TRANSITIONING_IN
 var _tile_pairs: Array[TilePair] = []
+var _offset_history: Array[Vector2] = []
 
 
 #-------------------------------------------------------------------------------
@@ -85,6 +86,7 @@ func generate_tunnel(rect: Rect2, origin_y: float):
 				var ratio = _last_transition_change_x / _transition_period
 				_current_amplitude = lerpf(0.0, _target_amplitude, ratio)
 				generator_offset_y = _get_offset_y(_current_x)
+		
 
 		var tunnel_offset_y: float = origin_y + generator_offset_y
 		var tile_offset_y: float = (tunnel_height + rect.size.y) * 0.5
@@ -111,6 +113,9 @@ func generate_tunnel(rect: Rect2, origin_y: float):
 		# Advance x position
 		_current_x += tile_width
 		_last_transition_change_x += tile_width
+
+		# Store x and y offset in history
+		_offset_history.append(Vector2(_current_x, tunnel_offset_y))
 
 		# Don't update state unless we've reached a transition
 		if _last_transition_change_x < _transition_period: continue
@@ -151,6 +156,31 @@ func generate_tunnel(rect: Rect2, origin_y: float):
 				# debug
 				bottom_tile.color = Color.RED
 				top_tile.color = Color.RED
+
+
+func get_stored_offset_y(x: float) -> float:
+	if _offset_history.is_empty():
+		return 0.0
+	
+	# Find the closest x value <= given x
+	var closest_idx: int = -1
+	for i in range(_offset_history.size()):
+		if _offset_history[i].x <= x:
+			closest_idx = i
+		else:
+			break
+	
+	# If no point found or only one point, return what we have
+	if closest_idx == -1:
+		return 0.0
+	if closest_idx == _offset_history.size() - 1:
+		return _offset_history[closest_idx].y
+	
+	# Interpolate between closest point and next point
+	var p1 = _offset_history[closest_idx]
+	var p2 = _offset_history[closest_idx + 1]
+	var t = (x - p1.x) / (p2.x - p1.x)
+	return lerpf(p1.y, p2.y, t)
 
 
 #-------------------------------------------------------------------------------
