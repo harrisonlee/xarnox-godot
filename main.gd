@@ -41,6 +41,11 @@ func _process(_delta: float) -> void:
 		_tunnel_origin_y
 	)
 
+	var auto_pilot_lookahead: float = player.collision_body.shape.get_rect().size.x * 0.5
+	player.auto_pilot_position_y = tunnel_generator.get_stored_offset_y(
+		player.position.x + auto_pilot_lookahead
+	)
+
 
 #-------------------------------------------------------------------------------
 # Signal Callbacks

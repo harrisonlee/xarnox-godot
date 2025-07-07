@@ -28,14 +28,13 @@ signal hit
 
 
 #-------------------------------------------------------------------------------
-# Enums
+# Public Variables
 #-------------------------------------------------------------------------------
-enum FlyingState { IDLE, CLIMBING, DESCENDING }
-enum ShootingDirection { UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN }
+var auto_pilot_position_y: float = 0.0
 
 
 #-------------------------------------------------------------------------------
-# Exported Variables
+# On-ready Nodes
 #-------------------------------------------------------------------------------
 @onready var collision_body: CollisionShape2D = $CollisionShape2D
 @onready var muzzle_up: Marker2D = $MuzzleUp
@@ -46,9 +45,20 @@ enum ShootingDirection { UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN }
 
 
 #-------------------------------------------------------------------------------
-# Exported Variables
+# Enums
+#-------------------------------------------------------------------------------
+enum FlyingState { IDLE, CLIMBING, DESCENDING, AUTO_PILOT }
+enum ShootingDirection { UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN }
+
+
+#-------------------------------------------------------------------------------
+# Private Variables
 #-------------------------------------------------------------------------------
 var _current_flying_state = FlyingState.IDLE
+var _auto_pilot_damping: float = 7.0
+var _auto_pilot_oscillation_time: float = 0.0
+var _auto_pilot_oscillation_amplitude: float = 40.0
+var _auto_pilot_oscillation_frequency: float = 3.0
 
 
 #-------------------------------------------------------------------------------
@@ -73,6 +83,18 @@ func _physics_process(delta: float) -> void:
 			velocity.y += (descent_accel + gravity.y) * delta
 		FlyingState.IDLE:
 			velocity.y += gravity.y * delta
+		FlyingState.AUTO_PILOT:
+			_auto_pilot_oscillation_time += delta
+			var frequency = _auto_pilot_oscillation_time * _auto_pilot_oscillation_frequency
+			var oscillation_offset_y = sin(frequency) * _auto_pilot_oscillation_amplitude
+			var target_position_y = auto_pilot_position_y + oscillation_offset_y
+			var target_diff_y = target_position_y - position.y
+			var target_velocity_y = target_diff_y * _auto_pilot_damping
+			velocity.y = lerpf(
+				velocity.y,
+				target_velocity_y,
+				_auto_pilot_damping * delta
+			)
 
 	velocity.x = clampf(velocity.x + acceleration, -speed, speed)
 
@@ -85,6 +107,15 @@ func _physics_process(delta: float) -> void:
 			
 
 func get_input() -> void:
+	if Input.is_action_just_pressed("toggle_player_autopilot"):
+		_current_flying_state = (
+			FlyingState.AUTO_PILOT if _current_flying_state != FlyingState.AUTO_PILOT 
+			else FlyingState.IDLE
+		)
+
+	if _current_flying_state == FlyingState.AUTO_PILOT:
+		return
+
 	_current_flying_state = FlyingState.IDLE
 	if Input.is_action_pressed("ui_climb"):
 		_current_flying_state = FlyingState.CLIMBING
