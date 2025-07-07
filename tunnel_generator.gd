@@ -64,7 +64,7 @@ func init(rect: Rect2) -> void:
 	_target_amplitude = 100.0
 
 
-func generate_tunnel(rect: Rect2, y_origin: float):
+func generate_tunnel(rect: Rect2, origin_y: float):
 	_cleanup_tiles(rect)
 	if rect.end.x + tile_width < _current_x: return
 
@@ -73,32 +73,32 @@ func generate_tunnel(rect: Rect2, y_origin: float):
 	var tile_count: int = int(tile_coverage / tile_width) + 1
 
 	for i in range(tile_count):
-		var generator_y_offset: float = 0.0
+		var generator_offset_y: float = 0.0
 		match _state:
 			State.NORMAL:
-				generator_y_offset = _get_y_offset(_current_x)
+				generator_offset_y = _get_offset_y(_current_x)
 			State.TRANSITIONING_OUT:
 				var ratio = _last_transition_change_x / _transition_period
 				_current_amplitude = lerpf(_current_amplitude, 0.0, ratio)
-				generator_y_offset = _get_y_offset(_current_x)
+				generator_offset_y = _get_offset_y(_current_x)
 			State.TRANSITIONING_IN:
 				var ratio = _last_transition_change_x / _transition_period
 				_current_amplitude = lerpf(0.0, _target_amplitude, ratio)
-				generator_y_offset = _get_y_offset(_current_x)
+				generator_offset_y = _get_offset_y(_current_x)
 
-		var tunnel_y_offset: float = y_origin + generator_y_offset
-		var tile_y_offset: float = (tunnel_height + rect.size.y) * 0.5
+		var tunnel_offset_y: float = origin_y + generator_offset_y
+		var tile_offset_y: float = (tunnel_height + rect.size.y) * 0.5
 
 		# Bottom tile
 		var bottom_tile: Tile = tile_scene.instantiate()
 		bottom_tile.size = Vector2(tile_width, rect.size.y)
-		bottom_tile.position = Vector2(_current_x, tunnel_y_offset + tile_y_offset)
+		bottom_tile.position = Vector2(_current_x, tunnel_offset_y + tile_offset_y)
 		owner.add_child.call_deferred(bottom_tile)
 
 		# Top tile
 		var top_tile: Tile = tile_scene.instantiate()
 		top_tile.size = Vector2(tile_width, rect.size.y)
-		top_tile.position = Vector2(_current_x, tunnel_y_offset - tile_y_offset)
+		top_tile.position = Vector2(_current_x, tunnel_offset_y - tile_offset_y)
 		owner.add_child.call_deferred(top_tile)
 
 		# Remember tiles for cleanup
@@ -156,7 +156,7 @@ func generate_tunnel(rect: Rect2, y_origin: float):
 #-------------------------------------------------------------------------------
 # Private Methods
 #-------------------------------------------------------------------------------
-func _get_y_offset(x: float) -> float:
+func _get_offset_y(x: float) -> float:
 	var p: float = 2.0 * PI / _current_period
 	match _generator_idx:
 		0: return _current_amplitude * (sin(x * p) + sin(2 * x * p))
