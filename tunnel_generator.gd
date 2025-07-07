@@ -29,6 +29,19 @@ enum State { NORMAL, TRANSITIONING_OUT, TRANSITIONING_IN }
 
 
 #-------------------------------------------------------------------------------
+# Inner Classes
+#-------------------------------------------------------------------------------
+class TilePair:
+	var position_x: float
+	var top_tile: Tile
+	var bottom_tile: Tile
+
+	func free_tiles() -> void:
+		top_tile.queue_free()
+		bottom_tile.queue_free()
+
+
+#-------------------------------------------------------------------------------
 # Private Variables
 #-------------------------------------------------------------------------------
 var _current_x: float = 0.0
@@ -39,6 +52,7 @@ var _current_period: float = 0.0
 var _current_amplitude: float = 0.0
 var _target_amplitude: float = 0.0
 var _state: State = State.NORMAL
+var _tile_pairs: Array[TilePair] = []
 
 
 #-------------------------------------------------------------------------------
@@ -51,7 +65,8 @@ func init(rect: Rect2) -> void:
 
 
 func generate_tunnel(rect: Rect2, y_origin: float):
-	if rect.end.x + tile_width < _current_x: return 
+	_cleanup_tiles(rect)
+	if rect.end.x + tile_width < _current_x: return
 
 	_current_amplitude = _target_amplitude
 	var tile_coverage: int = int(rect.end.x + tile_width - _current_x)
@@ -70,7 +85,7 @@ func generate_tunnel(rect: Rect2, y_origin: float):
 				var ratio = _last_transition_change_x / _transition_period
 				_current_amplitude = lerpf(0.0, _target_amplitude, ratio)
 				generator_y_offset = _get_y_offset(_current_x)
-				
+
 		var tunnel_y_offset: float = y_origin + generator_y_offset
 		var tile_y_offset: float = (tunnel_height + rect.size.y) * 0.5
 
@@ -86,6 +101,14 @@ func generate_tunnel(rect: Rect2, y_origin: float):
 		top_tile.position = Vector2(_current_x, tunnel_y_offset - tile_y_offset)
 		owner.add_child.call_deferred(top_tile)
 
+		# Remember tiles for cleanup
+		var tile_pair: TilePair = TilePair.new()
+		tile_pair.position_x = _current_x
+		tile_pair.top_tile = top_tile
+		tile_pair.bottom_tile = bottom_tile
+		_tile_pairs.append(tile_pair)
+
+		# Advance x position
 		_current_x += tile_width
 		_last_transition_change_x += tile_width
 
@@ -144,4 +167,14 @@ func _get_y_offset(x: float) -> float:
 func _update_transition_period() -> void:
 	var multipliers: Array[float] = [0.5, 1.0 , 1.5, 2.0, 2.5, 3.0]
 	_transition_period = _current_period * multipliers.pick_random()
-	
+
+
+func _cleanup_tiles(rect: Rect2) -> void:
+	var removed_cnt: int = 0
+	for tile_pair in _tile_pairs:
+		if tile_pair.position_x + tile_width > rect.position.x: break
+		tile_pair.free_tiles()
+		removed_cnt += 1
+
+	for i in removed_cnt:
+		_tile_pairs.remove_at(i)
