@@ -19,7 +19,6 @@ extends Node
 # Public Variables
 #-------------------------------------------------------------------------------
 var tile_width: float = 50.0
-var tunnel_height: float = 600.0
 
 
 #-------------------------------------------------------------------------------
@@ -48,60 +47,70 @@ class TilePair:
 # Private Variables
 #-------------------------------------------------------------------------------
 var _current_x: float = 0.0
-var _last_transition_change_x: float = 0.0
+var _last_state_change_x: float = 0.0
+var _last_tunnel_height: float = 0.0
 var _transition_period: float = 0.0
 var _generator_idx: int = 0
-var _current_period: float = 0.0
-var _current_amplitude: float = 0.0
-var _target_amplitude: float = 0.0
 var _state: State = State.TRANSITIONING_IN
 var _tile_pairs: Array[TilePair] = []
 var _offset_history: Array[Vector2] = []
+var _current_offset_y_generator: OffsetYGenerator = null
 
+var _offset_y_generators: Array[OffsetYGenerator] = [
+	OffsetYGenerator.new(),
+	OffsetYGenerator.new(),
+	OffsetYGenerator.new(),
+	OffsetYGenerator.new()
+]
 
 #-------------------------------------------------------------------------------
 # Public Methods
 #-------------------------------------------------------------------------------
 func init(rect: Rect2) -> void:
-	_current_period = rect.size.x
-	_transition_period = _current_period
-	_target_amplitude = 100.0
+	_current_offset_y_generator = _offset_y_generators[_generator_idx]
+	_current_offset_y_generator.randomize_metrics()
+	_current_offset_y_generator.period = rect.size.x
+	_last_tunnel_height = rect.size.y
+	_transition_period = _current_offset_y_generator.period
 
 
 func generate_tunnel(rect: Rect2, origin_y: float):
 	_cleanup_tiles(rect)
 	if rect.end.x + tile_width < _current_x: return
 
-	_current_amplitude = _target_amplitude
 	var tile_coverage: int = int(rect.end.x + tile_width - _current_x)
 	var tile_count: int = int(tile_coverage / tile_width) + 1
+	var tile_size: Vector2 = Vector2(tile_width, rect.size.y * 1.5)
 
 	for i in range(tile_count):
 		var generator_offset_y: float = 0.0
+		var tunnel_height: float = _current_offset_y_generator.tunnel_height
+		var transition_ratio: float = _last_state_change_x / _transition_period
+
 		match _state:
 			State.NORMAL:
+				_current_offset_y_generator.transition_ratio = 1.0
 				generator_offset_y = _get_offset_y(_current_x)
 			State.TRANSITIONING_OUT:
-				var ratio = _last_transition_change_x / _transition_period
-				_current_amplitude = lerpf(_current_amplitude, 0.0, ratio)
+				_current_offset_y_generator.transition_ratio = 1.0 - transition_ratio
 				generator_offset_y = _get_offset_y(_current_x)
 			State.TRANSITIONING_IN:
-				var ratio = _last_transition_change_x / _transition_period
-				_current_amplitude = lerpf(0.0, _target_amplitude, ratio)
+				_current_offset_y_generator.transition_ratio = transition_ratio
+				tunnel_height = lerpf(_last_tunnel_height, tunnel_height, transition_ratio)
 				generator_offset_y = _get_offset_y(_current_x)
-		
+
 		var tunnel_offset_y: float = origin_y + generator_offset_y
-		var tile_offset_y: float = (tunnel_height + rect.size.y) * 0.5
+		var tile_offset_y: float = (tunnel_height + tile_size.y) * 0.5
 
 		# Bottom tile
 		var bottom_tile: Tile = tile_scene.instantiate()
-		bottom_tile.size = Vector2(tile_width, rect.size.y)
+		bottom_tile.size = tile_size
 		bottom_tile.position = Vector2(_current_x, tunnel_offset_y + tile_offset_y)
 		owner.add_child.call_deferred(bottom_tile)
 
 		# Top tile
 		var top_tile: Tile = tile_scene.instantiate()
-		top_tile.size = Vector2(tile_width, rect.size.y)
+		top_tile.size = tile_size
 		top_tile.position = Vector2(_current_x, tunnel_offset_y - tile_offset_y)
 		owner.add_child.call_deferred(top_tile)
 
@@ -114,46 +123,38 @@ func generate_tunnel(rect: Rect2, origin_y: float):
 
 		# Advance x position
 		_current_x += tile_width
-		_last_transition_change_x += tile_width
+		_last_state_change_x += tile_width
 
 		# Store x and y offset in history
 		_offset_history.append(Vector2(_current_x, tunnel_offset_y))
 
 		# Don't update state unless we've reached a transition
-		if _last_transition_change_x < _transition_period: continue
+		if _last_state_change_x < _transition_period: continue
 
 		# Update State
 		match _state:
 			State.NORMAL:
-				_state = State.TRANSITIONING_OUT
-				_last_transition_change_x = 0.0
-				_transition_period = _current_period * 0.5
+				_update_state(State.TRANSITIONING_OUT)
+				_transition_period = _current_offset_y_generator.period * 0.75
 
 				# debug
 				bottom_tile.color = Color.GREEN
 				top_tile.color = Color.GREEN
 
-
 			State.TRANSITIONING_OUT:
-				_state = State.TRANSITIONING_IN
-				_last_transition_change_x = 0.0
-
-				_generator_idx += 1
-				if _generator_idx > 2:
-					_generator_idx = 0
-
-				_current_period = range(period_min, period_max).pick_random()
-				_target_amplitude = range(amplitude_min, amplitude_max).pick_random()
-				_transition_period = _current_period * 0.5
+				_update_state(State.TRANSITIONING_IN)
+				_last_tunnel_height = _current_offset_y_generator.tunnel_height
+				_set_new_offset_y_generator()
+				_current_offset_y_generator.randomize_metrics()
+				_transition_period = _current_offset_y_generator.period * 0.75
 
 				# debug
 				bottom_tile.color = Color.BLUE
 				top_tile.color = Color.BLUE
 
 			State.TRANSITIONING_IN:
-				_state = State.NORMAL
-				_last_transition_change_x = 0.0
-				_transition_period = _current_period * [0.5, 1.0, 1.5].pick_random()
+				_update_state(State.NORMAL)
+				_transition_period = _current_offset_y_generator.period 
 
 				# debug
 				bottom_tile.color = Color.RED
@@ -188,17 +189,22 @@ func get_stored_offset_y(x: float) -> float:
 #-------------------------------------------------------------------------------
 # Private Methods
 #-------------------------------------------------------------------------------
+func _set_new_offset_y_generator() -> void:
+	var new_generator_idx = _generator_idx
+	while new_generator_idx == _generator_idx:
+		new_generator_idx = range(_offset_y_generators.size()).pick_random()
+
+	_generator_idx = new_generator_idx
+	_current_offset_y_generator = _offset_y_generators[_generator_idx]
+
+
 func _get_offset_y(x: float) -> float:
-	var p: float = 2.0 * PI / _current_period
-	match _generator_idx:
-		0: return _current_amplitude * (sin(x * p) + sin(2 * x * p))
-		1: return _current_amplitude * sin(sin(2 * x * p) + sin(4 * x * p))
-		_: return _current_amplitude * sin(3 * x * p + sin(x * p))
+	return _current_offset_y_generator.get_offset_y(x)
 
 
-func _update_transition_period() -> void:
-	var multipliers: Array[float] = [0.5, 1.0 , 1.5, 2.0, 2.5, 3.0]
-	_transition_period = _current_period * multipliers.pick_random()
+func _update_state(state: State) -> void:
+	_state = state
+	_last_state_change_x = 0.0
 
 
 func _cleanup_tiles(rect: Rect2) -> void:
