@@ -55,13 +55,16 @@ var _state: State = State.TRANSITIONING_IN
 var _tile_pairs: Array[TilePair] = []
 var _offset_history: Array[Vector2] = []
 var _current_offset_y_generator: OffsetYGenerator = null
+var _offset_y_generators: Array[OffsetYGenerator] = []
 
-var _offset_y_generators: Array[OffsetYGenerator] = [
-	OffsetYGenerator.new(),
-	OffsetYGenerator.new(),
-	OffsetYGenerator.new(),
-	OffsetYGenerator.new()
-]
+
+#-------------------------------------------------------------------------------
+# Lifecycle Methods
+#-------------------------------------------------------------------------------
+func _ready() -> void:
+	for offset_y_generator in find_children("*", "OffsetYGenerator"):
+		_offset_y_generators.append(offset_y_generator)
+
 
 #-------------------------------------------------------------------------------
 # Public Methods
@@ -80,7 +83,7 @@ func generate_tunnel(rect: Rect2, origin_y: float):
 
 	var tile_coverage: int = int(rect.end.x + tile_width - _current_x)
 	var tile_count: int = int(tile_coverage / tile_width) + 1
-	var tile_size: Vector2 = Vector2(tile_width, rect.size.y * 1.5)
+	var tile_size: Vector2 = Vector2(tile_width, rect.size.y * 2.0)
 
 	for i in range(tile_count):
 		var generator_offset_y: float = 0.0
@@ -135,7 +138,7 @@ func generate_tunnel(rect: Rect2, origin_y: float):
 		match _state:
 			State.NORMAL:
 				_update_state(State.TRANSITIONING_OUT)
-				_transition_period = _current_offset_y_generator.period * 0.75
+				_transition_period = _current_offset_y_generator.period * 0.5
 
 				# debug
 				bottom_tile.color = Color.GREEN
@@ -146,7 +149,7 @@ func generate_tunnel(rect: Rect2, origin_y: float):
 				_last_tunnel_height = _current_offset_y_generator.tunnel_height
 				_set_new_offset_y_generator()
 				_current_offset_y_generator.randomize_metrics()
-				_transition_period = _current_offset_y_generator.period * 0.75
+				_transition_period = _current_offset_y_generator.period * 0.5
 
 				# debug
 				bottom_tile.color = Color.BLUE
@@ -190,6 +193,8 @@ func get_stored_offset_y(x: float) -> float:
 # Private Methods
 #-------------------------------------------------------------------------------
 func _set_new_offset_y_generator() -> void:
+	if _offset_y_generators.size() == 1: return
+
 	var new_generator_idx = _generator_idx
 	while new_generator_idx == _generator_idx:
 		new_generator_idx = range(_offset_y_generators.size()).pick_random()

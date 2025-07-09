@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://c072o111jvma2"]
+
+[ext_resource type="Script" uid="uid://bijbkwd2mbs0e" path="res://compound_sine_offset_y_generator_a.gd" id="1_ifb71"]
+
+[node name="CompoundSineOffsetYGeneratorA" type="Node"]
+script = ExtResource("1_ifb71")
+metadata/_custom_type_script = "uid://cbe60wwm3l0f5"
