@@ -4,4 +4,10 @@
 
 [node name="CompoundSineOffsetYGeneratorA" type="Node"]
 script = ExtResource("1_ifb71")
+min_tunnel_height = 400.0
+max_tunnel_height = 1200.0
+min_period = 800.0
+max_period = 3840.0
+min_amplitude = 50.0
+max_amplitude = 300.0
 metadata/_custom_type_script = "uid://cbe60wwm3l0f5"

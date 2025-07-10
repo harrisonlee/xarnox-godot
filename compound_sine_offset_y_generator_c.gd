@@ -1,4 +1,4 @@
-extends OffsetYGenerator
+@tool extends OffsetYGenerator
 
 #-------------------------------------------------------------------------------
 # Private Overrides
