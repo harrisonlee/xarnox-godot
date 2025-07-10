@@ -1,4 +1,4 @@
-class_name OffsetYGenerator extends Node
+@tool class_name OffsetYGenerator extends Node
 
 #-------------------------------------------------------------------------------
 # Exported Variables
@@ -15,6 +15,8 @@ class_name OffsetYGenerator extends Node
 @export var min_amplitude: float = 100.0
 ## The maximum amplitude allowed
 @export var max_amplitude: float = 600.0
+## Should automatically change ampltitude to lower value for lower periods
+@export var auto_scale_amplitude: bool = true
 
 
 #-------------------------------------------------------------------------------
@@ -33,6 +35,19 @@ func randomize_metrics() -> void:
 	tunnel_height = randf_range(min_tunnel_height, max_tunnel_height)
 	period = randf_range(min_period, max_period)
 	amplitude = randf_range(min_amplitude, max_amplitude)
+	if auto_scale_amplitude: _auto_scale_amplitude()
+
+
+func use_minimum_metrics() -> void:
+	tunnel_height = min_tunnel_height
+	period = min_period
+	amplitude = min_amplitude
+
+
+func use_maximum_metrics() -> void:
+	tunnel_height = max_tunnel_height
+	period = max_period
+	amplitude = max_amplitude
 
 
 func get_offset_y(x: float) -> float:
@@ -50,3 +65,9 @@ func get_screen_period() -> float:
 #-------------------------------------------------------------------------------
 func _get_offset_y(x: float, p: float, a: float) -> float:
 	return a * sin(x * p)
+
+
+func _auto_scale_amplitude() -> void:
+	var period_ratio = (period - min_period) / (max_period - min_period)
+	var scaled_max_amplitude: float = lerpf(min_amplitude, max_amplitude, period_ratio)
+	amplitude = randf_range(min_amplitude, scaled_max_amplitude)
