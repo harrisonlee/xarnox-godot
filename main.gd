@@ -57,3 +57,11 @@ func _on_player_hit() -> void:
 	if hud.player_health_bar.value <= 0.0:
 		player.hide()
 		player.set_physics_process(false)
+
+
+func _on_tunnel_generator_created_tile(opening: Rect2) -> void:
+	pass # Replace with function body.
+
+
+func _on_tunnel_generator_transitioned_generator(generator_name: String) -> void:
+	pass # Replace with function body.

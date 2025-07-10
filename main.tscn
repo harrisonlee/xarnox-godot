@@ -30,4 +30,6 @@ player = NodePath("../Player")
 
 [node name="HUD" parent="." instance=ExtResource("5_lquwl")]
 
+[connection signal="created_tile" from="TunnelGenerator" to="." method="_on_tunnel_generator_created_tile"]
+[connection signal="transitioned_generator" from="TunnelGenerator" to="." method="_on_tunnel_generator_transitioned_generator"]
 [connection signal="hit" from="Player" to="." method="_on_player_hit"]

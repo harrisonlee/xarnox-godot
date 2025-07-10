@@ -1,6 +1,12 @@
 extends Node
 
 #-------------------------------------------------------------------------------
+# Signals
+#-------------------------------------------------------------------------------
+signal created_tile(opening: Rect2)
+signal transitioned_generator(generator_name: String)
+
+#-------------------------------------------------------------------------------
 # Exported Variables
 #-------------------------------------------------------------------------------
 ## The tile node to generate
@@ -124,6 +130,14 @@ func generate_tunnel(rect: Rect2, origin_y: float):
 		tile_pair.bottom_tile = bottom_tile
 		_tile_pairs.append(tile_pair)
 
+		# Emit tile created signal
+		created_tile.emit(Rect2(
+			_current_x - tile_width * 0.5,
+			tunnel_offset_y - tunnel_height * 0.5,
+			tile_width,
+			tunnel_height
+		))
+
 		# Advance x position
 		_current_x += tile_width
 		_last_state_change_x += tile_width
@@ -158,6 +172,7 @@ func generate_tunnel(rect: Rect2, origin_y: float):
 			State.TRANSITIONING_IN:
 				_update_state(State.NORMAL)
 				_transition_period = _current_offset_y_generator.period 
+				transitioned_generator.emit(_current_offset_y_generator.get_name())
 
 				# debug
 				bottom_tile.color = Color.RED
