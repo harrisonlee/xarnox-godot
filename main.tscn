@@ -1,15 +1,24 @@
-[gd_scene load_steps=6 format=3 uid="uid://0u6fmju7cdqb"]
+[gd_scene load_steps=9 format=3 uid="uid://0u6fmju7cdqb"]
 
 [ext_resource type="Script" uid="uid://m7lv6p2uy0y" path="res://main.gd" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://dencfc13x3u82" path="res://tunnel_generator.tscn" id="2_1bvp3"]
 [ext_resource type="PackedScene" uid="uid://tusuer5i4roh" path="res://player.tscn" id="2_h2yge"]
+[ext_resource type="PackedScene" uid="uid://c072o111jvma2" path="res://compound_sine_offset_y_generator_a.tscn" id="3_7mycd"]
 [ext_resource type="PackedScene" uid="uid://bld7wxadxirfb" path="res://player_camera.tscn" id="4_1bvp3"]
+[ext_resource type="PackedScene" uid="uid://fiyrjbkh5jvt" path="res://compound_sine_offset_y_generator_b.tscn" id="4_5vw27"]
+[ext_resource type="PackedScene" uid="uid://de0c6afxqn351" path="res://compound_sine_offset_y_generator_c.tscn" id="5_kek77"]
 [ext_resource type="PackedScene" uid="uid://cgvkfmwt00dva" path="res://hud.tscn" id="5_lquwl"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_0xm2m")
 
 [node name="TunnelGenerator" parent="." instance=ExtResource("2_1bvp3")]
+
+[node name="CompoundSineOffsetYGeneratorA" parent="TunnelGenerator" instance=ExtResource("3_7mycd")]
+
+[node name="CompoundSineOffsetYGeneratorB" parent="TunnelGenerator" instance=ExtResource("4_5vw27")]
+
+[node name="CompoundSineOffsetYGeneratorC" parent="TunnelGenerator" instance=ExtResource("5_kek77")]
 
 [node name="Player" parent="." instance=ExtResource("2_h2yge")]
 
@@ -21,4 +30,6 @@ player = NodePath("../Player")
 
 [node name="HUD" parent="." instance=ExtResource("5_lquwl")]
 
+[connection signal="created_tile" from="TunnelGenerator" to="." method="_on_tunnel_generator_created_tile"]
+[connection signal="transitioned_generator" from="TunnelGenerator" to="." method="_on_tunnel_generator_transitioned_generator"]
 [connection signal="hit" from="Player" to="." method="_on_player_hit"]

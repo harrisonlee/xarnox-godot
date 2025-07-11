@@ -13,7 +13,8 @@ extends Node
 # Private Variables
 #-------------------------------------------------------------------------------
 var _current_viewport_rect: Rect2 = Rect2()
-var _tunnel_y_origin: float = 0.0
+var _tunnel_origin_y: float = 0.0
+var _player_distance_scale: float = 0.1
 
 
 #-------------------------------------------------------------------------------
@@ -21,20 +22,28 @@ var _tunnel_y_origin: float = 0.0
 #-------------------------------------------------------------------------------
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	_current_viewport_rect = get_viewport().get_visible_rect()
+
 	player.position = $PlayerStartingPosition.position
 	player_camera.player_follow_x = $PlayerStartingPosition.position.x
 	player_camera.move_to_player()
 
-	_current_viewport_rect = get_viewport().get_visible_rect()
-	_tunnel_y_origin = _current_viewport_rect.get_center().y
-	tunnel_generator.generate_tunnel(_current_viewport_rect, _tunnel_y_origin)
+	_tunnel_origin_y = _current_viewport_rect.get_center().y
+	tunnel_generator.init(_current_viewport_rect)
+	tunnel_generator.generate_tunnel(_current_viewport_rect, _tunnel_origin_y)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
+	hud.set_player_distance(player.position.x * _player_distance_scale)
 	tunnel_generator.generate_tunnel(
 		player_camera.get_visible_rect(),
-		_tunnel_y_origin
+		_tunnel_origin_y
+	)
+
+	var auto_pilot_lookahead: float = player.collision_body.shape.get_rect().size.x * 0.5
+	player.auto_pilot_position_y = tunnel_generator.get_stored_offset_y(
+		player.position.x + auto_pilot_lookahead
 	)
 
 
@@ -48,3 +57,11 @@ func _on_player_hit() -> void:
 	if hud.player_health_bar.value <= 0.0:
 		player.hide()
 		player.set_physics_process(false)
+
+
+func _on_tunnel_generator_created_tile(opening: Rect2) -> void:
+	pass # Replace with function body.
+
+
+func _on_tunnel_generator_transitioned_generator(generator_name: String) -> void:
+	pass # Replace with function body.

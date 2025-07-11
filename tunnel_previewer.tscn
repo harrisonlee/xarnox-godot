@@ -1,0 +1,16 @@
+[gd_scene load_steps=5 format=3 uid="uid://bd0thnek62hkj"]
+
+[ext_resource type="Script" uid="uid://dy4m5icodqsi2" path="res://tunnel_previewer.gd" id="1_68ijn"]
+[ext_resource type="PackedScene" uid="uid://c072o111jvma2" path="res://compound_sine_offset_y_generator_a.tscn" id="2_ku83w"]
+[ext_resource type="PackedScene" uid="uid://fiyrjbkh5jvt" path="res://compound_sine_offset_y_generator_b.tscn" id="3_33yit"]
+[ext_resource type="PackedScene" uid="uid://de0c6afxqn351" path="res://compound_sine_offset_y_generator_c.tscn" id="4_2r1lm"]
+
+[node name="TunnelPreviewer" type="Node2D"]
+script = ExtResource("1_68ijn")
+mode = 2
+
+[node name="CompoundSineOffsetYGeneratorA" parent="." instance=ExtResource("2_ku83w")]
+
+[node name="CompoundSineOffsetYGeneratorB" parent="." instance=ExtResource("3_33yit")]
+
+[node name="CompoundSineOffsetYGeneratorC" parent="." instance=ExtResource("4_2r1lm")]
