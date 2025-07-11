@@ -15,6 +15,8 @@ extends Node
 var _current_viewport_rect: Rect2 = Rect2()
 var _tunnel_origin_y: float = 0.0
 var _player_distance_scale: float = 0.1
+var _last_enemy_generation_time: float = 0.0
+var _flying_enemy_scene: PackedScene = preload("res://flying_enemy.tscn")
 
 
 #-------------------------------------------------------------------------------
@@ -34,7 +36,8 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_last_enemy_generation_time += delta
 	hud.set_player_distance(player.position.x * _player_distance_scale)
 	tunnel_generator.generate_tunnel(
 		player_camera.get_visible_rect(),
@@ -60,7 +63,15 @@ func _on_player_hit() -> void:
 
 
 func _on_tunnel_generator_created_tile(opening: Rect2) -> void:
-	pass # Replace with function body.
+	var adjusted_opening = opening.grow_individual(0.0, -25.0, 0.0, -25.0)
+	if _last_enemy_generation_time > 3.0:
+		var flyingEnemy: FlyingEnemy = _flying_enemy_scene.instantiate()
+		flyingEnemy.position = Vector2(
+			adjusted_opening.get_center().x, 
+			randf_range(adjusted_opening.position.y, adjusted_opening.end.y)
+		)
+		add_child(flyingEnemy)
+		_last_enemy_generation_time = 0.0
 
 
 func _on_tunnel_generator_transitioned_generator(generator_name: String) -> void:

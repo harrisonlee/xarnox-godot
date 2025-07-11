@@ -69,6 +69,7 @@ toggle_player_autopilot={
 
 2d_physics/layer_1="Player"
 2d_physics/layer_2="Player Weapons"
+2d_physics/layer_5="Enemies"
 2d_physics/layer_9="Walls"
 
 [rendering]

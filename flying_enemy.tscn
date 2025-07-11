@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3 uid="uid://cbhmm3qefmbcv"]
+
+[ext_resource type="Script" uid="uid://crhhjmm8dk1eg" path="res://flying_enemy.gd" id="1_dk4q2"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_dk4q2"]
+radius = 25.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_yp6i7"]
+radius = 75.0
+
+[node name="FlyingEnemy" type="CharacterBody2D"]
+collision_layer = 16
+collision_mask = 257
+script = ExtResource("1_dk4q2")
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_dk4q2")
+
+[node name="AvoidArea2D" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 256
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AvoidArea2D"]
+shape = SubResource("CircleShape2D_yp6i7")
+
+[node name="AvoidTimer" type="Timer" parent="."]
+wait_time = 0.5
+one_shot = true
+
+[connection signal="body_entered" from="AvoidArea2D" to="." method="_on_avoid_area_2d_body_entered"]
+[connection signal="timeout" from="AvoidTimer" to="." method="_on_avoid_timer_timeout"]
