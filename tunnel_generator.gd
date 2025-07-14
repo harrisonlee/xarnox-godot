@@ -1,4 +1,4 @@
-extends Node
+class_name TunnelGenerator extends Node
 
 #-------------------------------------------------------------------------------
 # Signals
@@ -177,6 +177,23 @@ func generate_tunnel(rect: Rect2, origin_y: float):
 				# debug
 				bottom_tile.color = Color.RED
 				top_tile.color = Color.RED
+
+
+func clear_tiles() -> void:
+	for tile_pair in _tile_pairs:
+		tile_pair.free_tiles()
+	_tile_pairs = []
+
+
+func reset() -> void:
+	clear_tiles()
+	_offset_history = []
+	_current_x = 0.0
+	_last_state_change_x = 0.0
+
+
+func update_state(state: State) -> void:
+	_state = state
 
 
 func get_stored_offset_y(x: float) -> float:

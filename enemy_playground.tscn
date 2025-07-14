@@ -1,0 +1,119 @@
+[gd_scene load_steps=5 format=3 uid="uid://b54ow41rbjglg"]
+
+[ext_resource type="PackedScene" uid="uid://dencfc13x3u82" path="res://tunnel_generator.tscn" id="1_5cem2"]
+[ext_resource type="Script" uid="uid://dc4sb7mpieipd" path="res://enemy_playground.gd" id="1_ihcx6"]
+[ext_resource type="PackedScene" uid="uid://cbhmm3qefmbcv" path="res://flying_enemy.tscn" id="2_30qc3"]
+[ext_resource type="PackedScene" uid="uid://de0c6afxqn351" path="res://compound_sine_offset_y_generator_c.tscn" id="3_rxy3s"]
+
+[node name="EnemyPlayground" type="Node"]
+script = ExtResource("1_ihcx6")
+enemy_scene = ExtResource("2_30qc3")
+
+[node name="TunnelGenerator" parent="." instance=ExtResource("1_5cem2")]
+
+[node name="CompoundSineOffsetYGeneratorC" parent="TunnelGenerator" instance=ExtResource("3_rxy3s")]
+min_tunnel_height = 0.0
+max_tunnel_height = 500.0
+min_period = 960.0
+max_period = 1920.0
+min_amplitude = 0.0
+max_amplitude = 1000.0
+auto_scale_amplitude = false
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="PeriodSlider" type="HSlider" parent="CanvasLayer"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 367.0
+offset_top = -98.0
+offset_right = 590.0
+offset_bottom = -42.0
+grow_vertical = 0
+scale = Vector2(1.5, 1.5)
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="PeriodLabel" type="Label" parent="CanvasLayer"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 367.0
+offset_top = -120.0
+offset_right = 488.0
+offset_bottom = -86.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 24
+text = "Period"
+
+[node name="AmplitudeLabel" type="Label" parent="CanvasLayer"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 806.0
+offset_top = -120.0
+offset_right = 927.0
+offset_bottom = -86.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 24
+text = "Amplitude"
+
+[node name="AmplitudeSlider" type="HSlider" parent="CanvasLayer"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 806.0
+offset_top = -98.0
+offset_right = 1029.0
+offset_bottom = -42.0
+grow_vertical = 0
+scale = Vector2(1.5, 1.5)
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="TunnelHeightLabel" type="Label" parent="CanvasLayer"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 1237.0
+offset_top = -120.0
+offset_right = 1400.0
+offset_bottom = -86.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 24
+text = "Tunnel Height"
+
+[node name="TunnelHeightSlider" type="HSlider" parent="CanvasLayer"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 1237.0
+offset_top = -98.0
+offset_right = 1460.0
+offset_bottom = -42.0
+grow_vertical = 0
+scale = Vector2(1.5, 1.5)
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="Button" type="Button" parent="CanvasLayer"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 39.0
+offset_top = -120.0
+offset_right = 312.0
+offset_bottom = -36.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 24
+text = "Generate Enemy"
+
+[connection signal="created_tile" from="TunnelGenerator" to="." method="_on_tunnel_generator_created_tile"]
+[connection signal="value_changed" from="CanvasLayer/PeriodSlider" to="." method="_on_slider_value_changed"]
+[connection signal="value_changed" from="CanvasLayer/AmplitudeSlider" to="." method="_on_slider_value_changed"]
+[connection signal="value_changed" from="CanvasLayer/TunnelHeightSlider" to="." method="_on_slider_value_changed"]
+[connection signal="pressed" from="CanvasLayer/Button" to="." method="_on_button_pressed"]
