@@ -1,4 +1,4 @@
-class_name FlyingEnemy extends CharacterBody2D
+class_name FlyingEnemy extends Enemy
 
 ## An enemy that flies across the screen horizontally while avoiding terrain.
 ## It oscillates vertically to simulate flying.

@@ -92,13 +92,9 @@ func _on_button_pressed() -> void:
 		float(_tunnel_openings.size() - 1),
 		enemy_position_x_ratio
 	))
-	var opening = _tunnel_openings[idx].grow_individual(0.0, -25.0, 0.0, -25.0)
+
 	var enemy = enemy_scene.instantiate()
-	enemy.position = Vector2(
-		opening.get_center().x,
-		randf_range(opening.position.y, opening.end.y)
-	)
-	add_child(enemy)
+	enemy.install_in(self, _tunnel_openings[idx])
 
 
 func _on_slider_value_changed(_value: float) -> void:
