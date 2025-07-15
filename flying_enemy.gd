@@ -6,15 +6,15 @@ class_name FlyingEnemy extends Enemy
 #-------------------------------------------------------------------------------
 # Exported Variables
 #-------------------------------------------------------------------------------
-## The speed this node travels towards the target in px/s.
+## The speed this node horizontally in px/s.
 @export var speed: float = 300.0
 ## Acceleration in px/s. A value of 0.0 uses no acceleration.
 @export var acceleration: float = 0.0
 ## The time it takes to complete a direction change. Smaller values are faster.
 @export var oscillation_time: float = 0.5
-## The intensity of the oscillation. Larger number yield greater distance
+## The intensity of the oscillation. Larger numbers yield greater distance.
 @export var oscillation_amplitude: float = 400.0
-## The direction to fly horizontally
+## The direction to fly horizontally.
 @export var direction: Direction = Direction.LEFT
 
 
@@ -44,7 +44,7 @@ var _avoid_direction: float = 0.0
 # Lifecycle Methods
 #-------------------------------------------------------------------------------
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, 25.0, Color.BLUE)
+	draw_circle(Vector2.ZERO, 25.0, Color.TEAL)
 
 
 func _physics_process(delta: float) -> void:
