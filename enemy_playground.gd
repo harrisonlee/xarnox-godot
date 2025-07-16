@@ -123,6 +123,7 @@ func _on_button_pressed() -> void:
 	))
 
 	var enemy = enemy_scene.instantiate()
+	enemy.target_node = player
 	enemy.install_in(self, _tunnel_openings[idx])
 
 

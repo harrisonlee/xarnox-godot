@@ -1,0 +1,30 @@
+[gd_scene load_steps=4 format=3 uid="uid://d4mkl1yk2gbo7"]
+
+[ext_resource type="Script" uid="uid://dsqhwpoyc0hd2" path="res://turret_enemy.gd" id="1_5nwje"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_5nwje"]
+radius = 20.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_l1ivg"]
+radius = 500.0
+
+[node name="TurretEnemy" type="CharacterBody2D"]
+script = ExtResource("1_5nwje")
+install_location_y = 3
+install_padding_y = 25.0
+metadata/_custom_type_script = "uid://o3tc7hg2eie4"
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_5nwje")
+
+[node name="Timer" type="Timer" parent="."]
+one_shot = true
+
+[node name="DetectionArea2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea2D"]
+shape = SubResource("CircleShape2D_l1ivg")
+
+[connection signal="body_entered" from="DetectionArea2D" to="." method="_on_detection_area_2d_body_entered"]
+[connection signal="body_exited" from="DetectionArea2D" to="." method="_on_detection_area_2d_body_exited"]
