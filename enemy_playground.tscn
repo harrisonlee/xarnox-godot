@@ -1,13 +1,17 @@
-[gd_scene load_steps=5 format=3 uid="uid://b54ow41rbjglg"]
+[gd_scene load_steps=6 format=3 uid="uid://b54ow41rbjglg"]
 
 [ext_resource type="PackedScene" uid="uid://dencfc13x3u82" path="res://tunnel_generator.tscn" id="1_5cem2"]
 [ext_resource type="Script" uid="uid://dc4sb7mpieipd" path="res://enemy_playground.gd" id="1_ihcx6"]
-[ext_resource type="PackedScene" uid="uid://cbhmm3qefmbcv" path="res://flying_enemy.tscn" id="2_30qc3"]
+[ext_resource type="PackedScene" uid="uid://cbhmm3qefmbcv" path="res://flying_enemy.tscn" id="2_ue2jn"]
 [ext_resource type="PackedScene" uid="uid://de0c6afxqn351" path="res://compound_sine_offset_y_generator_c.tscn" id="3_rxy3s"]
+[ext_resource type="PackedScene" uid="uid://tusuer5i4roh" path="res://player.tscn" id="3_ue2jn"]
 
 [node name="EnemyPlayground" type="Node"]
 script = ExtResource("1_ihcx6")
-enemy_scene = ExtResource("2_30qc3")
+enemy_scene = ExtResource("2_ue2jn")
+
+[node name="Player" parent="." instance=ExtResource("3_ue2jn")]
+position = Vector2(184, 515)
 
 [node name="TunnelGenerator" parent="." instance=ExtResource("1_5cem2")]
 

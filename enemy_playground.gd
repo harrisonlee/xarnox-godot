@@ -5,6 +5,10 @@ extends Node
 #-------------------------------------------------------------------------------
 @export var enemy_scene: PackedScene = null
 @export_range(0.0, 1.0, 0.1) var enemy_position_x_ratio: float = 1.0
+@export var use_random_enemy_position_x_ratio: bool = false
+@export var show_player: bool = true
+@export var start_player_on_autopilot: bool = true
+@export var keep_player_on_screen: bool = true
 
 
 #-------------------------------------------------------------------------------
@@ -15,6 +19,7 @@ extends Node
 @onready var amplitude_slider = $CanvasLayer/AmplitudeSlider
 @onready var tunnel_height_slider = $CanvasLayer/TunnelHeightSlider
 @onready var offset_y_generator = $TunnelGenerator/CompoundSineOffsetYGeneratorC
+@onready var player = $Player
 
 
 #-------------------------------------------------------------------------------
@@ -43,6 +48,26 @@ func _ready() -> void:
 	_viewport_rect = get_viewport().get_visible_rect()
 	tunnel_generator.init(_viewport_rect)
 	_update_tunnel()
+
+	if !show_player:
+		player.queue_free()
+	elif start_player_on_autopilot:
+		player.set_autopilot_enabled(true)
+
+
+func _process(_delta: float) -> void:
+	var auto_pilot_lookahead: float = player.collision_body.shape.get_rect().size.x * 0.5
+	player.auto_pilot_position_y = tunnel_generator.get_stored_offset_y(
+		player.position.x + auto_pilot_lookahead
+	)
+
+	var adjusted_rect = _viewport_rect.grow(-50.0)
+	if keep_player_on_screen:
+		match player.direction:
+			Player.Direction.LEFT when player.position.x <= adjusted_rect.position.x:
+				player.direction = Player.Direction.RIGHT
+			Player.Direction.RIGHT when player.position.x >= adjusted_rect.end.x:
+				player.direction = Player.Direction.LEFT
 
 
 #-------------------------------------------------------------------------------
@@ -87,10 +112,14 @@ func _on_tunnel_generator_created_tile(opening: Rect2) -> void:
 
 
 func _on_button_pressed() -> void:
+	var ratio = \
+			randf_range(0.0, 1.0) if use_random_enemy_position_x_ratio \
+			else enemy_position_x_ratio 
+
 	var idx: int = int(lerpf(
 		0.0,
 		float(_tunnel_openings.size() - 1),
-		enemy_position_x_ratio
+		ratio
 	))
 
 	var enemy = enemy_scene.instantiate()

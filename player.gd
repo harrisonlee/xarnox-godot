@@ -1,4 +1,4 @@
-extends CharacterBody2D
+class_name Player extends CharacterBody2D
 
 #-------------------------------------------------------------------------------
 # Signals
@@ -25,6 +25,8 @@ signal hit
 @export var bounce_velocity: float = 400.0
 ## A scene that represents the current projectile
 @export var projectile_scene: PackedScene = preload("res://projectile.tscn")
+## The direciton the player moves horizontally
+@export var direction: Direction = Direction.RIGHT
 
 
 #-------------------------------------------------------------------------------
@@ -49,6 +51,7 @@ var auto_pilot_position_y: float = 0.0
 #-------------------------------------------------------------------------------
 enum FlyingState { IDLE, CLIMBING, DESCENDING, AUTO_PILOT }
 enum ShootingDirection { UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN }
+enum Direction { LEFT = -1, RIGHT = 1 }
 
 
 #-------------------------------------------------------------------------------
@@ -96,7 +99,7 @@ func _physics_process(delta: float) -> void:
 				_auto_pilot_damping * delta
 			)
 
-	velocity.x = clampf(velocity.x + acceleration, -speed, speed)
+	velocity.x = clampf(velocity.x + acceleration * float(direction), -speed, speed)
 
 	# Bounce off walls
 	var collision = move_and_collide(velocity * delta)
@@ -104,7 +107,7 @@ func _physics_process(delta: float) -> void:
 		hit.emit()
 		if collision.get_collider().is_in_group("walls"):
 			velocity = collision.get_normal() * 400.0
-			
+
 
 func get_input() -> void:
 	if Input.is_action_just_pressed("toggle_player_autopilot"):
@@ -133,6 +136,13 @@ func get_input() -> void:
 	elif Input.is_action_just_pressed("ui_shoot_down"):
 		_shoot(ShootingDirection.DOWN)
 	
+
+#-------------------------------------------------------------------------------
+# Public Methods
+#-------------------------------------------------------------------------------
+func set_autopilot_enabled(enabled: bool) -> void:
+	_current_flying_state = FlyingState.AUTO_PILOT if enabled else FlyingState.IDLE
+
 
 #-------------------------------------------------------------------------------
 # Private Methods
