@@ -1,5 +1,4 @@
-class_name Projectile
-extends CharacterBody2D
+class_name Projectile extends CharacterBody2D
 
 #-------------------------------------------------------------------------------
 # Exported Variables
@@ -18,10 +17,11 @@ var direction: Vector2 = Vector2.ZERO
 # Lifecyle Methods
 #-------------------------------------------------------------------------------
 func _draw() -> void:
+	var dimension: float = 7.0
 	var points: Array[Vector2] = [
-		Vector2(-7.0, -7.0),
-		Vector2(7.0, 0.0),
-		Vector2(-7.0, 7.0)
+		Vector2(-dimension, -dimension),
+		Vector2(dimension, 0.0),
+		Vector2(-dimension, dimension)
 	]
 
 	draw_polygon(points, [Color.GREEN])
@@ -40,5 +40,5 @@ func fire(_position: Vector2, _direction: Vector2):
 	position = _position
 	direction = _direction
 	rotation = direction.angle()
-	velocity = Vector2(direction * initial_speed)
+	velocity = direction * initial_speed
 
