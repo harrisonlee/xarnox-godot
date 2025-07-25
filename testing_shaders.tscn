@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://ogn50smp6onf"]
+
+[ext_resource type="Script" uid="uid://du6ufosrkabt8" path="res://testing_shaders.gd" id="1_651uj"]
+[ext_resource type="PackedScene" uid="uid://qw53et0lexxk" path="res://test_shader.tscn" id="1_v630a"]
+
+[node name="TestingShaders" type="Node"]
+script = ExtResource("1_651uj")
+
+[node name="TestShader" parent="." instance=ExtResource("1_v630a")]
+position = Vector2(860, 440)
+
+[node name="TestShader2" parent="." instance=ExtResource("1_v630a")]
+position = Vector2(1060, 440)
+
+[node name="TestShader3" parent="." instance=ExtResource("1_v630a")]
+position = Vector2(860, 640)
+
+[node name="TestShader4" parent="." instance=ExtResource("1_v630a")]
+position = Vector2(1060, 640)
+
+[node name="Camera2D" type="Camera2D" parent="."]
