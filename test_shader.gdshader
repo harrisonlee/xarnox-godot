@@ -65,7 +65,7 @@ uniform bool smoothHeights = true;
  * towards the right side of the gradient texture. Lower values do the
  * opposite.
  */
-uniform float heightModifier: hint_range(0.1, 5.0) = 1.6;
+uniform float heightModifier: hint_range(0.1, 5.0) = 1.0;
 
 /**
  * Multiplies the height by itself n number of times. This causes the low
@@ -73,14 +73,39 @@ uniform float heightModifier: hint_range(0.1, 5.0) = 1.6;
  */
 uniform int depthCount: hint_range(0, 10) = 1;
 
+/**
+ * Enable or disable normal mapping.
+ */
+uniform bool enableNormalMapping = true;
+
+/**
+ * The light direction for the normal map.
+ */
+uniform vec3 lightDirection = vec3(0.0, 1.0, 0.0);
+
+/**
+ * The light color.
+ */
+uniform vec3 lightColor = vec3(1.0);
+
+/**
+ * A normal map for added texture.
+ */
+uniform sampler2D normalMap: repeat_enable;
+
+/*
+ * The brightness of and individual instance.
+ */
+instance uniform float brightness = 1.0;
+
 const mat2 m2 = mat2(vec2(0.8, -0.6),vec2(0.6, 0.8));
 const vec2 resolution = vec2(1920.0, 1080.0);
 
-float random (in vec2 st) {
+float random (vec2 st) {
 	return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
-float noise(in vec2 st) {
+float noise(vec2 st) {
     vec2 i = floor(st);
     vec2 f = fract(st);
 
@@ -99,6 +124,7 @@ float noise(in vec2 st) {
 
 float fbm(vec2 st) {
     float value = 0.0;
+	//vec2 shift = vec2(shiftX + TIME, shiftY + sin(TIME));
 	vec2 shift = vec2(shiftX, shiftY);
 	float a = amplitude;
 
@@ -116,9 +142,12 @@ float pattern(vec2 p) {
 	q.x = fbm(p + vec2(0.0, 0.0));
 	q.y = fbm(p + vec2(5.2,1.3));
 
+	//q += TIME * 0.1;
+
 	vec2 r;
 	r.x = fbm(p + 3.0 * q + vec2(1.7, 9.2));
 	r.y = fbm(p + 3.0 * q + vec2(8.3, 2.8));
+
 
     return fbm(p + vec2(patternShiftX, patternShiftY) * r);
 }
@@ -127,6 +156,8 @@ void fragment() {
 	vec2 p = FRAGCOORD.xy * SCREEN_PIXEL_SIZE;
 	p.x *= (100.0 / SCREEN_PIXEL_SIZE.x) / (100.0 / SCREEN_PIXEL_SIZE.y);
 	p *= scale;
+	//p.x += sin(TIME);
+	//p.y += cos(TIME);
 
 	float height = 0.0;
 	if (useDomainWarping) {
@@ -144,7 +175,16 @@ void fragment() {
 		height = float(iheight) / 100.0;
 	}
 
-	vec2 uv = vec2(height, 0.0);
-	COLOR = texture(TEXTURE, uv);
+	vec2 gradientUV = vec2(height, 0.0);
+	vec3 color = texture(TEXTURE, gradientUV).rgb;
+
+	if (enableNormalMapping) {
+		vec3 normal = texture(normalMap, UV).rgb;
+		normal = normalize(normal * 2.0 - 1.0);
+		float diff = max(dot(normal, lightDirection), 0.0);
+		color *= (diff + lightColor) * brightness;
+	}
+
+	COLOR = vec4(color, 1.0);
 }
 

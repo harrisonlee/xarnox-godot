@@ -34,18 +34,20 @@ var _trailing_points: PackedVector2Array = []
 var _did_generate_polygon: bool = false
 var _corner_points: PackedVector2Array = []
 
+var polygon_scene: PackedScene = preload("res://test_shader.tscn")
+
 
 #-------------------------------------------------------------------------------
 # Lifecycle Methods
 #-------------------------------------------------------------------------------
-func _draw() -> void:
+func _create_polygons() -> void:
 	var triangles: PackedInt32Array = Geometry2D.triangulate_delaunay(polygon)
 
 	for idx in range(0.0, triangles.size(), 3):
 		var points: PackedVector2Array = [
 			polygon[triangles[idx]],
 			polygon[triangles[idx + 1]],
-			polygon[triangles[idx + 2]]
+			polygon[triangles[idx + 2]],
 		]
 
 		var midpoint_ab: Vector2 = (points[0] + points[1]) * 0.5
@@ -58,7 +60,18 @@ func _draw() -> void:
 			k = clampf(k, 0.0, 255.0)
 			k = k / 255.0
 			var _color = Color(rock_color.r * k, rock_color.g * k, rock_color.b * k)
-			draw_polygon(points, [_color, _color, _color])
+
+			var poly = polygon_scene.instantiate()
+			poly.polygon = points
+			poly.set_instance_shader_parameter("brightness", k)
+
+			poly.uv = [
+				Vector2(points[0] + position),
+				Vector2(points[1] + position),
+				Vector2(points[2] + position),
+			]
+
+			add_child(poly)
 
 			if draw_debug:
 				draw_line(points[0], points[1], Color.WHITE)
@@ -72,6 +85,8 @@ func _draw() -> void:
 func _ready() -> void:
 	if !_did_generate_polygon:
 		_generate_polygon()
+
+	_create_polygons()
 
 
 #-------------------------------------------------------------------------------
@@ -131,3 +146,23 @@ func _generate_polygon() -> void:
 
 	polygon = points
 	_did_generate_polygon = true
+
+
+func _get_polygon_bounding_rect(points: PackedVector2Array) -> Rect2:
+	if points.is_empty(): return Rect2()
+
+	var min_x: float = points[0].x
+	var max_x: float = points[0].x
+	var min_y: float = points[0].y
+	var max_y: float = points[0].y
+
+	for p in points:
+		min_x = min(min_x, p.x)
+		max_x = max(max_x, p.x)
+		min_y = min(min_y, p.y)
+		max_y = max(max_y, p.y)
+	
+	var pos: Vector2 = Vector2(min_x, min_y)
+	var size: Vector2 = Vector2(max_x - min_x, max_y - min_y)
+
+	return Rect2(pos, size)

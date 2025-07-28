@@ -1,21 +1,58 @@
-[gd_scene load_steps=3 format=3 uid="uid://ogn50smp6onf"]
+[gd_scene load_steps=6 format=3 uid="uid://ogn50smp6onf"]
 
 [ext_resource type="Script" uid="uid://du6ufosrkabt8" path="res://testing_shaders.gd" id="1_651uj"]
 [ext_resource type="PackedScene" uid="uid://qw53et0lexxk" path="res://test_shader.tscn" id="1_v630a"]
+[ext_resource type="Shader" uid="uid://bq4wkawk3hsj3" path="res://test_shader.gdshader" id="3_njgpk"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_njgpk"]
+resource_local_to_scene = true
+shader = ExtResource("3_njgpk")
+shader_parameter/scale = 5.0
+shader_parameter/amplitude = 0.5
+shader_parameter/gain = 0.5
+shader_parameter/frequency = 2.88
+shader_parameter/octaves = 6
+shader_parameter/shiftX = 100.0
+shader_parameter/shiftY = 100.0
+shader_parameter/useDomainWarping = true
+shader_parameter/patternShiftX = 28.927
+shader_parameter/patternShiftY = 8.399
+shader_parameter/smoothHeights = true
+shader_parameter/heightModifier = 1.0
+shader_parameter/depthCount = 1
+shader_parameter/enableNormalMapping = true
+shader_parameter/lightDirection = Vector3(0, 1, 0)
+shader_parameter/lightColor = Vector3(1, 1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_m71mb"]
+resource_local_to_scene = true
+shader = ExtResource("3_njgpk")
+shader_parameter/scale = 5.0
+shader_parameter/amplitude = 0.5
+shader_parameter/gain = 0.5
+shader_parameter/frequency = 2.88
+shader_parameter/octaves = 6
+shader_parameter/shiftX = 100.0
+shader_parameter/shiftY = 100.0
+shader_parameter/useDomainWarping = true
+shader_parameter/patternShiftX = 28.927
+shader_parameter/patternShiftY = 8.399
+shader_parameter/smoothHeights = true
+shader_parameter/heightModifier = 1.0
+shader_parameter/depthCount = 1
+shader_parameter/enableNormalMapping = true
+shader_parameter/lightDirection = Vector3(0, 1, 0)
+shader_parameter/lightColor = Vector3(1, 1, 1)
 
 [node name="TestingShaders" type="Node"]
 script = ExtResource("1_651uj")
 
 [node name="TestShader" parent="." instance=ExtResource("1_v630a")]
-position = Vector2(860, 440)
+material = SubResource("ShaderMaterial_njgpk")
+position = Vector2(960, 540)
 
 [node name="TestShader2" parent="." instance=ExtResource("1_v630a")]
-position = Vector2(1060, 440)
-
-[node name="TestShader3" parent="." instance=ExtResource("1_v630a")]
-position = Vector2(860, 640)
-
-[node name="TestShader4" parent="." instance=ExtResource("1_v630a")]
-position = Vector2(1060, 640)
+material = SubResource("ShaderMaterial_m71mb")
+position = Vector2(1160, 540)
 
 [node name="Camera2D" type="Camera2D" parent="."]
