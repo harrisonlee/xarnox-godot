@@ -148,7 +148,6 @@ float pattern(vec2 p) {
 	r.x = fbm(p + 3.0 * q + vec2(1.7, 9.2));
 	r.y = fbm(p + 3.0 * q + vec2(8.3, 2.8));
 
-
     return fbm(p + vec2(patternShiftX, patternShiftY) * r);
 }
 
@@ -182,9 +181,10 @@ void fragment() {
 		vec3 normal = texture(normalMap, UV).rgb;
 		normal = normalize(normal * 2.0 - 1.0);
 		float diff = max(dot(normal, lightDirection), 0.0);
-		color *= (diff + lightColor) * brightness;
+		color *= diff + lightColor;
 	}
 
+	color *= brightness;
 	COLOR = vec4(color, 1.0);
 }
 
