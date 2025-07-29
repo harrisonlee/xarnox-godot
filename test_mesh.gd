@@ -1,11 +1,15 @@
-@tool class_name TestMesh extends Polygon2D
+@tool class_name TestMesh extends Node2D
 
 #-------------------------------------------------------------------------------
 # Exporated Tool Variables
 #-------------------------------------------------------------------------------
 @export_tool_button("Regen") var regen_button = func regen():
+	for child in poly_children:
+		child.queue_free()
+	
+	poly_children = []
 	_generate_polygon()
-	queue_redraw()
+	_create_polygons()
 
 
 #-------------------------------------------------------------------------------
@@ -35,6 +39,8 @@ var _did_generate_polygon: bool = false
 var _corner_points: PackedVector2Array = []
 
 var polygon_scene: PackedScene = preload("res://test_shader.tscn")
+var polygon: PackedVector2Array = []
+var poly_children: Array[Node2D] = []
 
 
 #-------------------------------------------------------------------------------
@@ -72,6 +78,7 @@ func _create_polygons() -> void:
 			]
 
 			add_child(poly)
+			poly_children.append(poly)
 
 			if draw_debug:
 				draw_line(points[0], points[1], Color.WHITE)
