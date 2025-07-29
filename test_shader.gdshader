@@ -20,10 +20,10 @@ uniform float gain: hint_range(0.0, 1.0) = 0.5;
  */
 uniform float frequency: hint_range(0.0, 100.0) = 2.0;
 
-/** 
+/**
  * The number of octaves for FBM noise.
  */
- uniform int octaves: hint_range(0, 24) = 6;
+uniform int octaves: hint_range(0, 24) = 6;
 
 /**
  * Controls the noise shift in the horizontal direction.
@@ -180,7 +180,7 @@ void fragment() {
 	if (enableNormalMapping) {
 		vec3 normal = texture(normalMap, UV).rgb;
 		normal = normalize(normal * 2.0 - 1.0);
-		float diff = max(dot(normal, lightDirection), 0.0);
+		float diff = dot(normal, lightDirection);
 		color *= diff + lightColor;
 	}
 
