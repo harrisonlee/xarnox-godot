@@ -1,15 +1,11 @@
-@tool class_name TestMesh extends Node2D
+@tool class_name TestMesh extends MeshInstance2D
 
 #-------------------------------------------------------------------------------
 # Exporated Tool Variables
 #-------------------------------------------------------------------------------
 @export_tool_button("Regen") var regen_button = func regen():
-	for child in poly_children:
-		child.queue_free()
-	
-	poly_children = []
 	_generate_polygon()
-	_create_polygons()
+	_update_mesh()
 
 
 #-------------------------------------------------------------------------------
@@ -17,11 +13,9 @@
 #-------------------------------------------------------------------------------
 @export var slope: float = 0.0
 @export var light_range: float = 255.0
-@export var rock_color = Color(0.547, 0.588, 0.559)
 @export var segment_size: float = 50.0
 @export var width: float = 50.0
 @export var height: float = 1080.0
-@export var draw_debug: bool = false
 
 
 #-------------------------------------------------------------------------------
@@ -37,23 +31,22 @@ var _leading_points: PackedVector2Array = []
 var _trailing_points: PackedVector2Array = []
 var _did_generate_polygon: bool = false
 var _corner_points: PackedVector2Array = []
-
-var polygon_scene: PackedScene = preload("res://test_shader.tscn")
-var polygon: PackedVector2Array = []
-var poly_children: Array[Node2D] = []
+var _polygon: PackedVector2Array = []
 
 
 #-------------------------------------------------------------------------------
 # Lifecycle Methods
 #-------------------------------------------------------------------------------
-func _create_polygons() -> void:
-	var triangles: PackedInt32Array = Geometry2D.triangulate_delaunay(polygon)
+func _update_mesh() -> void:
+	var triangles: PackedInt32Array = Geometry2D.triangulate_delaunay(_polygon)
+	var surface_tool: SurfaceTool = SurfaceTool.new()
+	var did_add_vertices: bool = false
 
 	for idx in range(0.0, triangles.size(), 3):
 		var points: PackedVector2Array = [
-			polygon[triangles[idx]],
-			polygon[triangles[idx + 1]],
-			polygon[triangles[idx + 2]],
+			_polygon[triangles[idx]],
+			_polygon[triangles[idx + 1]],
+			_polygon[triangles[idx + 2]],
 		]
 
 		var midpoint_ab: Vector2 = (points[0] + points[1]) * 0.5
@@ -61,39 +54,28 @@ func _create_polygons() -> void:
 		var midpoint_ca: Vector2 = (points[2] + points[0]) * 0.5
 		var midpoint_tri = (midpoint_ab + midpoint_bc + midpoint_ca) / 3.0
 
-		if Geometry2D.is_point_in_polygon(midpoint_tri, polygon):
+		if Geometry2D.is_point_in_polygon(midpoint_tri, _polygon):
 			var k: float = light_range - (midpoint_tri - light_marker.position).length()
 			k = clampf(k, 0.0, 255.0)
 			k = k / 255.0
-			var _color = Color(rock_color.r * k, rock_color.g * k, rock_color.b * k)
+			
+			if !did_add_vertices:
+				surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+				did_add_vertices = true
 
-			var poly = polygon_scene.instantiate()
-			poly.polygon = points
-			poly.set_instance_shader_parameter("brightness", k)
+			for p in points:
+				surface_tool.set_uv(p + position)
+				surface_tool.set_color(Color.BLACK.lerp(Color.WHITE, k))
+				surface_tool.add_vertex(Vector3(p.x, p.y, 0.0))
 
-			poly.uv = [
-				Vector2(points[0] + position),
-				Vector2(points[1] + position),
-				Vector2(points[2] + position),
-			]
-
-			add_child(poly)
-			poly_children.append(poly)
-
-			if draw_debug:
-				draw_line(points[0], points[1], Color.WHITE)
-				draw_line(points[1], points[2], Color.WHITE)
-				draw_line(points[2], points[0], Color.WHITE)
-
-				for cp in _corner_points:
-					draw_circle(cp, 5.0, Color.RED)
+	if did_add_vertices:
+		mesh = surface_tool.commit()
 
 
 func _ready() -> void:
 	if !_did_generate_polygon:
 		_generate_polygon()
-
-	_create_polygons()
+	_update_mesh()
 
 
 #-------------------------------------------------------------------------------
@@ -151,7 +133,7 @@ func _generate_polygon() -> void:
 			points.append(Vector2(0.0 - randf_range(0.0, 50.0), current_y))
 			current_y -= segment_size + randf_range(0.0, 35.0)
 
-	polygon = points
+	_polygon = points
 	_did_generate_polygon = true
 
 

@@ -1,9 +1,61 @@
-[gd_scene load_steps=2 format=3 uid="uid://dnm2kcka6ywm5"]
+[gd_scene load_steps=9 format=4 uid="uid://dnm2kcka6ywm5"]
 
+[ext_resource type="Shader" uid="uid://bq4wkawk3hsj3" path="res://test_shader.gdshader" id="1_3f5q1"]
 [ext_resource type="Script" uid="uid://c7b8e15dql2io" path="res://test_mesh.gd" id="1_aocs0"]
 
-[node name="TestMesh" type="Node2D"]
-scale = Vector2(1, 1.00593)
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_3f5q1"]
+frequency = 0.009
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_daf1y"]
+seamless = true
+as_normal_map = true
+bump_strength = 13.2
+noise = SubResource("FastNoiseLite_3f5q1")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_daf1y"]
+shader = ExtResource("1_3f5q1")
+shader_parameter/scale = 5.0
+shader_parameter/amplitude = 0.5
+shader_parameter/gain = 0.5
+shader_parameter/frequency = 2.0
+shader_parameter/octaves = 6
+shader_parameter/shiftX = 100.0
+shader_parameter/shiftY = 100.0
+shader_parameter/useDomainWarping = true
+shader_parameter/patternShiftX = 14.264
+shader_parameter/patternShiftY = 20.129
+shader_parameter/smoothHeights = true
+shader_parameter/heightModifier = 1.46
+shader_parameter/depthCount = 1
+shader_parameter/enableNormalMapping = true
+shader_parameter/lightDirection = Vector3(0, 1, 0)
+shader_parameter/lightColor = Vector3(1, 1, 1)
+shader_parameter/normalMap = SubResource("NoiseTexture2D_daf1y")
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_3f5q1"]
+_surfaces = [{
+"aabb": AABB(-49.7486, 0, 0, 99.7486, 1080, 1e-05),
+"attribute_data": PackedByteArray("0NDQ/wAAAAAAAAAA0NDQ/wAASEIAAAAA0NDQ/wAASEIAAEhCAAAA/wAASEK834ZEAAAA/wAASEIAAIdEAAAA/wAAAAAAAIdEAAAA/wAASEJLToBEAAAA/wAASEK834ZEAAAA/wAAAAAAAIdEAAAA/wAASEJLToBEAAAA/wAAAAAAAIdEAAAA/6kHCsIAwIBEAAAA/wAASEJNYG1EAAAA/wAASEJLToBEAAAA/4h7qcAouHNEAAAA/wAASEJLToBEAAAA/6kHCsIAwIBEAAAA/4h7qcAouHNEAAAA/wAASEI8Cl5EAAAA/wAASEJNYG1EAAAA/21ZIMLUU19EAAAA/wAASEJNYG1EAAAA/4h7qcAouHNEAAAA/21ZIMLUU19EAAAA/wAASELku09EAAAA/wAASEI8Cl5EAAAA//hfBMJKf01EAAAA/wAASEI8Cl5EAAAA/21ZIMLUU19EAAAA//hfBMJKf01EAAAA/wAASEKC1DxEAAAA/wAASELku09EAAAA//hfBMJKf01EAAAA/wAASELzRixEAAAA/wAASEKC1DxEAAAA/4LUMML5bzxEAAAA/wAASEKC1DxEAAAA//hfBMJKf01EAAAA/4LUMML5bzxEAAAA/wAASELzRixEAAAA/4LUMML5bzxEAAAA/78LGsLMPylEAAAA/wAASEKb2BpEAAAA/wAASELzRixEAAAA/5TTFcFfZRpEAAAA/wAASELzRixEAAAA/78LGsLMPylEAAAA/5TTFcFfZRpEAAAA/wAASEKRWwxEAAAA/wAASEKb2BpEAAAA/5TTFcFfZRpEAAAA/wAASEKPqvFDAAAA/wAASEKRWwxEAAAA/+j1F8KnuAVEAAAA/wAASEKRWwxEAAAA/5TTFcFfZRpEAAAA/+j1F8KnuAVEAAAA/wAASEIKGc9DAAAA/wAASEKPqvFDAAAA/w4v7cH4NO9DAAAA/wAASEKPqvFDAAAA/+j1F8KnuAVEAAAA/w4v7cH4NO9DAAAA/wAASEIKGc9DAAAA/w4v7cH4NO9DAAAA/5z+RsJqJ9JDAAAA/wAASELnSpFDAAAA/wAASEImoqtDAAAA/4W/j8D+Ma5DAAAA/wAASEImoqtDAAAA/wAASEIKGc9DAAAA/4W/j8D+Ma5DAAAA/wAASEIKGc9DAAAA/5z+RsJqJ9JDAAAA/4W/j8D+Ma5DMzMz/wAASEKz8llDMzMz/wAASELnSpFDMzMz/6NwksBbDIhDCAgI/wAASELnSpFDCAgI/4W/j8D+Ma5DCAgI/6NwksBbDIhDgICA/wAASELLrwVDgICA/wAASEKz8llDgICA/9JzU8AR3UNDVFRU/wAASEKz8llDVFRU/6NwksBbDIhDVFRU/9JzU8AR3UNDmpqa/wAASELLrwVDmpqa/9JzU8AR3UNDmpqa/93hNMJEdA1D3d3d/wAASEIAAEhC3d3d/wAASELLrwVD3d3d//FjMcK3d7FCurq6/wAASELLrwVDurq6/93hNMJEdA1Durq6//FjMcK3d7FC2NjY/wAAAAAAAAAA2NjY/wAASEIAAEhC2NjY/61R8cFd1/lA6Ojo/wAASEIAAEhC6Ojo//FjMcK3d7FC6Ojo/61R8cFd1/lA"),
+"format": 34359738393,
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 102,
+"vertex_data": PackedByteArray("AAAAAAAAAAAAAAAAAABIQgAAAAAAAAAAAABIQgAASEIAAAAAAABIQrzfhkQAAAAAAABIQgAAh0QAAAAAAAAAAAAAh0QAAAAAAABIQktOgEQAAAAAAABIQrzfhkQAAAAAAAAAAAAAh0QAAAAAAABIQktOgEQAAAAAAAAAAAAAh0QAAAAAqQcKwgDAgEQAAAAAAABIQk1gbUQAAAAAAABIQktOgEQAAAAAiHupwCi4c0QAAAAAAABIQktOgEQAAAAAqQcKwgDAgEQAAAAAiHupwCi4c0QAAAAAAABIQjwKXkQAAAAAAABIQk1gbUQAAAAAbVkgwtRTX0QAAAAAAABIQk1gbUQAAAAAiHupwCi4c0QAAAAAbVkgwtRTX0QAAAAAAABIQuS7T0QAAAAAAABIQjwKXkQAAAAA+F8Ewkp/TUQAAAAAAABIQjwKXkQAAAAAbVkgwtRTX0QAAAAA+F8Ewkp/TUQAAAAAAABIQoLUPEQAAAAAAABIQuS7T0QAAAAA+F8Ewkp/TUQAAAAAAABIQvNGLEQAAAAAAABIQoLUPEQAAAAAgtQwwvlvPEQAAAAAAABIQoLUPEQAAAAA+F8Ewkp/TUQAAAAAgtQwwvlvPEQAAAAAAABIQvNGLEQAAAAAgtQwwvlvPEQAAAAAvwsawsw/KUQAAAAAAABIQpvYGkQAAAAAAABIQvNGLEQAAAAAlNMVwV9lGkQAAAAAAABIQvNGLEQAAAAAvwsawsw/KUQAAAAAlNMVwV9lGkQAAAAAAABIQpFbDEQAAAAAAABIQpvYGkQAAAAAlNMVwV9lGkQAAAAAAABIQo+q8UMAAAAAAABIQpFbDEQAAAAA6PUXwqe4BUQAAAAAAABIQpFbDEQAAAAAlNMVwV9lGkQAAAAA6PUXwqe4BUQAAAAAAABIQgoZz0MAAAAAAABIQo+q8UMAAAAADi/twfg070MAAAAAAABIQo+q8UMAAAAA6PUXwqe4BUQAAAAADi/twfg070MAAAAAAABIQgoZz0MAAAAADi/twfg070MAAAAAnP5Gwmon0kMAAAAAAABIQudKkUMAAAAAAABIQiaiq0MAAAAAhb+PwP4xrkMAAAAAAABIQiaiq0MAAAAAAABIQgoZz0MAAAAAhb+PwP4xrkMAAAAAAABIQgoZz0MAAAAAnP5Gwmon0kMAAAAAhb+PwP4xrkMAAAAAAABIQrPyWUMAAAAAAABIQudKkUMAAAAAo3CSwFsMiEMAAAAAAABIQudKkUMAAAAAhb+PwP4xrkMAAAAAo3CSwFsMiEMAAAAAAABIQsuvBUMAAAAAAABIQrPyWUMAAAAA0nNTwBHdQ0MAAAAAAABIQrPyWUMAAAAAo3CSwFsMiEMAAAAA0nNTwBHdQ0MAAAAAAABIQsuvBUMAAAAA0nNTwBHdQ0MAAAAA3eE0wkR0DUMAAAAAAABIQgAASEIAAAAAAABIQsuvBUMAAAAA8WMxwrd3sUIAAAAAAABIQsuvBUMAAAAA3eE0wkR0DUMAAAAA8WMxwrd3sUIAAAAAAAAAAAAAAAAAAAAAAABIQgAASEIAAAAArVHxwV3X+UAAAAAAAABIQgAASEIAAAAA8WMxwrd3sUIAAAAArVHxwV3X+UAAAAAA")
+}]
+
+[sub_resource type="Gradient" id="Gradient_3f5q1"]
+offsets = PackedFloat32Array(0, 0.539432, 0.626183, 1)
+colors = PackedColorArray(0.166016, 0.166016, 0.166016, 1, 0.552799, 0.802734, 0.221066, 1, 0.159819, 0.150673, 0.443359, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_daf1y"]
+gradient = SubResource("Gradient_3f5q1")
+width = 512
+height = 512
+
+[node name="TestMesh" type="MeshInstance2D"]
+material = SubResource("ShaderMaterial_daf1y")
+mesh = SubResource("ArrayMesh_3f5q1")
+texture = SubResource("GradientTexture2D_daf1y")
 script = ExtResource("1_aocs0")
 
 [node name="LightMarker" type="Marker2D" parent="."]

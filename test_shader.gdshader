@@ -93,13 +93,7 @@ uniform vec3 lightColor = vec3(1.0);
  */
 uniform sampler2D normalMap: repeat_enable;
 
-/*
- * The brightness of and individual instance.
- */
-instance uniform float brightness = 1.0;
-
 const mat2 m2 = mat2(vec2(0.8, -0.6),vec2(0.6, 0.8));
-const vec2 resolution = vec2(1920.0, 1080.0);
 
 float random (vec2 st) {
 	return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
@@ -153,8 +147,9 @@ float pattern(vec2 p) {
 
 void fragment() {
 	vec2 p = FRAGCOORD.xy * SCREEN_PIXEL_SIZE;
-	p.x *= (100.0 / SCREEN_PIXEL_SIZE.x) / (100.0 / SCREEN_PIXEL_SIZE.y);
+	p.x *= SCREEN_PIXEL_SIZE.y / SCREEN_PIXEL_SIZE.x;
 	p *= scale;
+
 	//p.x += sin(TIME);
 	//p.y += cos(TIME);
 
@@ -178,13 +173,14 @@ void fragment() {
 	vec3 color = texture(TEXTURE, gradientUV).rgb;
 
 	if (enableNormalMapping) {
-		vec3 normal = texture(normalMap, UV).rgb;
+		vec2 normalSize = vec2(textureSize(normalMap, 0));
+		vec2 normUV = UV / normalSize;
+		vec3 normal = texture(normalMap, normUV).rgb;
 		normal = normalize(normal * 2.0 - 1.0);
 		float diff = dot(normal, lightDirection);
 		color *= diff + lightColor;
 	}
 
-	color *= brightness;
-	COLOR = vec4(color, 1.0);
+	COLOR *= vec4(color, 1.0);
 }
 
