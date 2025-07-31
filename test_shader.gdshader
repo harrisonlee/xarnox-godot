@@ -88,11 +88,6 @@ uniform vec3 lightDirection = vec3(0.0, 1.0, 0.0);
  */
 uniform vec3 lightColor = vec3(1.0);
 
-/**
- * A normal map for added texture.
- */
-uniform sampler2D normalMap: repeat_enable;
-
 const mat2 m2 = mat2(vec2(0.8, -0.6),vec2(0.6, 0.8));
 
 float random (vec2 st) {
@@ -145,6 +140,18 @@ float pattern(vec2 p) {
     return fbm(p + vec2(patternShiftX, patternShiftY) * r);
 }
 
+// Vertex color is a gray-scale lerp from black to white that represents
+// brightness. Its weight is based on the vertex distance from a "light
+// source". The distance is calculated on the CPU and passed as a color value
+// to the array mesh. When multiplied against the texture and normal map, it
+// provides a cheap 3D lighting effect.
+varying vec4 vertexColor;
+
+void vertex() {
+	// Remember vertex color before TEXTURE is added to it in fragment
+	vertexColor = COLOR; 
+}
+
 void fragment() {
 	vec2 p = FRAGCOORD.xy * SCREEN_PIXEL_SIZE;
 	p.x *= SCREEN_PIXEL_SIZE.y / SCREEN_PIXEL_SIZE.x;
@@ -173,14 +180,14 @@ void fragment() {
 	vec3 color = texture(TEXTURE, gradientUV).rgb;
 
 	if (enableNormalMapping) {
-		vec2 normalSize = vec2(textureSize(normalMap, 0));
+		vec2 normalSize = vec2(textureSize(NORMAL_TEXTURE, 0));
 		vec2 normUV = UV / normalSize;
-		vec3 normal = texture(normalMap, normUV).rgb;
+		vec3 normal = texture(NORMAL_TEXTURE, normUV).rgb;
 		normal = normalize(normal * 2.0 - 1.0);
 		float diff = dot(normal, lightDirection);
 		color *= diff + lightColor;
 	}
 
-	COLOR *= vec4(color, 1.0);
+	COLOR = vertexColor * vec4(color, 1.0);
 }
 
